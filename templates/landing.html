@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}SmartFlow Systems - Bookings that sell for you{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-black text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    <span class="text-gold">SmartFlow</span> Systems
+                </h1>
+                <p class="lead mb-4">
+                    AI booking, e-commerce, and social media management in a premium black & gold build.
+                </p>
+                <p class="fs-5 mb-4 text-light-gray">
+                    Transform your business with intelligent booking systems, automated social media, and premium client experiences.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{{ url_for('pricing') }}" class="btn btn-gold btn-lg">
+                        <i class="fas fa-star me-2"></i>See Pricing
+                    </a>
+                    <a href="#features" class="btn btn-outline-gold btn-lg">
+                        <i class="fas fa-arrow-down me-2"></i>Learn More
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="hero-graphic p-4">
+                    <i class="fas fa-calendar-alt fa-6x text-gold mb-3"></i>
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <div class="feature-icon bg-dark p-3 rounded">
+                                <i class="fas fa-robot text-gold"></i>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="feature-icon bg-dark p-3 rounded">
+                                <i class="fas fa-credit-card text-gold"></i>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="feature-icon bg-dark p-3 rounded">
+                                <i class="fas fa-sms text-gold"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5 bg-dark-gray">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="display-5 fw-bold text-gold">Everything You Need</h2>
+                <p class="lead text-light">Premium features for modern businesses</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card card bg-black border-gold h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-calendar-check fa-3x text-gold mb-3"></i>
+                        <h4 class="text-gold mb-3">Smart Booking</h4>
+                        <p class="text-light">
+                            Stripe deposits, Google Calendar sync, automated SMS reminders, and no-show protection.
+                        </p>
+                        <ul class="list-unstyled text-left text-light-gray">
+                            <li><i class="fas fa-check text-gold me-2"></i>Instant deposits</li>
+                            <li><i class="fas fa-check text-gold me-2"></i>Calendar integration</li>
+                            <li><i class="fas fa-check text-gold me-2"></i>SMS notifications</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card card bg-black border-gold h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-share-alt fa-3x text-gold mb-3"></i>
+                        <h4 class="text-gold mb-3">AI Social</h4>
+                        <p class="text-light">
+                            Automated captions, scheduling, and niche hashtag generation for your social media.
+                        </p>
+                        <ul class="list-unstyled text-left text-light-gray">
+                            <li><i class="fas fa-check text-gold me-2"></i>Smart captions</li>
+                            <li><i class="fas fa-check text-gold me-2"></i>Auto scheduling</li>
+                            <li><i class="fas fa-check text-gold me-2"></i>Hashtag research</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="feature-card card bg-black border-gold h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="fas fa-crown fa-3x text-gold mb-3"></i>
+                        <h4 class="text-gold mb-3">Premium Brand</h4>
+                        <p class="text-light">
+                            Black-and-gold visuals, premium client portal, and professional branding.
+                        </p>
+                        <ul class="list-unstyled text-left text-light-gray">
+                            <li><i class="fas fa-check text-gold me-2"></i>Premium design</li>
+                            <li><i class="fas fa-check text-gold me-2"></i>Client portal</li>
+                            <li><i class="fas fa-check text-gold me-2"></i>Brand customization</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-gold text-black">
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Ready to Transform Your Business?</h2>
+                <p class="lead mb-4">
+                    Join thousands of businesses using SmartFlow Systems to automate bookings, increase revenue, and provide premium client experiences.
+                </p>
+                <a href="{{ url_for('pricing') }}" class="btn btn-dark btn-lg px-5">
+                    <i class="fas fa-rocket me-2"></i>Get Started Today
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
