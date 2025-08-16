@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - SmartFlow Systems{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-black text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="display-5 fw-bold text-gold">Admin Dashboard</h1>
+                    <div class="text-end">
+                        <small class="text-light-gray">Workspace: {{ tenant.name }}</small><br>
+                        <small class="text-gold">Plan: {{ tenant.plan.title() }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card bg-dark-gray border-gold">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-2x text-gold mb-2"></i>
+                        <h4 class="text-gold">{{ current_seats }}</h4>
+                        <p class="text-light-gray mb-0">Active Users</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-dark-gray border-gold">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chair fa-2x text-gold mb-2"></i>
+                        <h4 class="text-gold">{{ seat_limit }}</h4>
+                        <p class="text-light-gray mb-0">Seat Limit</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-dark-gray border-gold">
+                    <div class="card-body text-center">
+                        <i class="fas fa-envelope fa-2x text-gold mb-2"></i>
+                        <h4 class="text-gold">{{ invitations|length }}</h4>
+                        <p class="text-light-gray mb-0">Pending Invites</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-dark-gray border-gold">
+                    <div class="card-body text-center">
+                        <i class="fas fa-crown fa-2x text-gold mb-2"></i>
+                        <h4 class="text-gold">{{ tenant.plan.title() }}</h4>
+                        <p class="text-light-gray mb-0">Current Plan</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Invite New User -->
+        <div class="row mb-5">
+            <div class="col-lg-6">
+                <div class="card bg-dark-gray border-gold">
+                    <div class="card-header bg-gold text-black">
+                        <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Invite New User</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if current_seats >= seat_limit %}
+                        <div class="alert alert-warning" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            You've reached your seat limit. Upgrade your plan to invite more users.
+                        </div>
+                        {% else %}
+                        <form method="POST" action="{{ url_for('invite_user') }}">
+                            <div class="mb-3">
+                                <label for="email" class="form-label text-light">Email Address</label>
+                                <input type="email" class="form-control bg-black border-gold text-light" 
+                                       id="email" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="role" class="form-label text-light">Role</label>
+                                <select class="form-select bg-black border-gold text-light" id="role" name="role">
+                                    <option value="staff">Staff</option>
+                                    <option value="analyst">Analyst</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-gold">
+                                <i class="fas fa-paper-plane me-2"></i>Send Invitation
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Current Users -->
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="card bg-dark-gray border-gold">
+                    <div class="card-header bg-gold text-black">
+                        <h5 class="mb-0"><i class="fas fa-users me-2"></i>Current Users</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                        <th>Joined</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for membership, user in memberships %}
+                                    <tr>
+                                        <td>{{ user.name or 'N/A' }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if membership.role == 'owner' %}warning{% elif membership.role == 'admin' %}info{% else %}secondary{% endif %}">
+                                                {{ membership.role.title() }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-{% if user.status == 'active' %}success{% elif user.status == 'suspended' %}warning{% else %}danger{% endif %}">
+                                                {{ user.status.title() }}
+                                            </span>
+                                        </td>
+                                        <td>{{ membership.activated_at.strftime('%Y-%m-%d') if membership.activated_at else 'N/A' }}</td>
+                                        <td>
+                                            {% if membership.role != 'owner' %}
+                                                {% if user.status == 'active' %}
+                                                <form method="POST" action="{{ url_for('suspend_user', user_id=user.id) }}" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-warning" 
+                                                            onclick="return confirm('Are you sure you want to suspend this user?')">
+                                                        <i class="fas fa-pause"></i> Suspend
+                                                    </button>
+                                                </form>
+                                                {% else %}
+                                                <form method="POST" action="{{ url_for('reactivate_user', user_id=user.id) }}" class="d-inline">
+                                                    <button type="submit" class="btn btn-sm btn-success">
+                                                        <i class="fas fa-play"></i> Reactivate
+                                                    </button>
+                                                </form>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pending Invitations -->
+        {% if invitations %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card bg-dark-gray border-gold">
+                    <div class="card-header bg-gold text-black">
+                        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Pending Invitations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Invited</th>
+                                        <th>Expires</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for invitation in invitations %}
+                                    <tr>
+                                        <td>{{ invitation.email }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ invitation.role.title() }}</span>
+                                        </td>
+                                        <td>{{ invitation.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>{{ invitation.expires_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if invitation.status == 'pending' %}warning{% elif invitation.status == 'accepted' %}success{% else %}danger{% endif %}">
+                                                {{ invitation.status.title() }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
