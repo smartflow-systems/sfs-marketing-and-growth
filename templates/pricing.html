@@ -13,7 +13,7 @@
         <div class="row g-4">
             {% for plan_id, plan in plans.items() %}
             <div class="col-lg-4 col-md-6">
-                <div class="card bg-dark-gray border-gold h-100 {% if plan_id == 'flowkit' %}border-3 position-relative{% endif %}">
+                <div class="sf-glass h-100 {% if plan_id == 'flowkit' %}sf-glass-highlighted position-relative{% endif %}">
                     {% if plan_id == 'flowkit' %}
                     <div class="position-absolute top-0 start-50 translate-middle">
                         <span class="badge bg-gold text-black px-3 py-2 fs-6">Most Popular</span>
@@ -22,7 +22,7 @@
                     
                     <div class="card-body p-4">
                         <div class="text-center mb-4">
-                            <h3 class="text-gold fw-bold mb-2">{{ plan.name }}</h3>
+                            <h3 class="sf-shine fw-bold mb-2">{{ plan.name }}</h3>
                             
                             <!-- Monthly Price -->
                             <div class="pricing-option mb-3">
@@ -50,7 +50,7 @@
                         <!-- Action Buttons -->
                         <div class="d-grid gap-2">
                             <a href="{{ url_for('checkout', plan=plan_id, mode='monthly') }}" 
-                               class="btn btn-gold btn-lg">
+                               class="sf-btn btn-lg">
                                 <i class="fas fa-star me-2"></i>Start Monthly
                             </a>
                             <a href="{{ url_for('checkout', plan=plan_id, mode='oneoff') }}" 
@@ -67,9 +67,9 @@
         <!-- Additional Info -->
         <div class="row mt-5">
             <div class="col-lg-8 mx-auto text-center">
-                <div class="card bg-dark-gray border-gold">
-                    <div class="card-body p-4">
-                        <h4 class="text-gold mb-3">All Plans Include:</h4>
+                <div class="sf-glass">
+                    <div class="p-4">
+                        <h4 class="sf-shine mb-3">All Plans Include:</h4>
                         <div class="row">
                             <div class="col-md-6">
                                 <ul class="list-unstyled text-left">
