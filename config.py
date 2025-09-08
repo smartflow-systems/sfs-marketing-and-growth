@@ -36,6 +36,14 @@ class Config:
     TWILIO_ACCOUNT_SID = os.environ.get("TWILIO_ACCOUNT_SID")
     TWILIO_AUTH_TOKEN = os.environ.get("TWILIO_AUTH_TOKEN")
     TWILIO_PHONE_NUMBER = os.environ.get("TWILIO_PHONE_NUMBER")
+    
+    # Stripe Price IDs (you'll need to replace these with your actual Stripe price IDs)
+    STRIPE_PRICE_STARTER_MONTHLY = os.environ.get("STRIPE_PRICE_STARTER_MONTHLY", "price_demo_starter_monthly")
+    STRIPE_PRICE_STARTER_ONEOFF = os.environ.get("STRIPE_PRICE_STARTER_ONEOFF", "price_demo_starter_oneoff")
+    STRIPE_PRICE_FLOWKIT_MONTHLY = os.environ.get("STRIPE_PRICE_FLOWKIT_MONTHLY", "price_demo_flowkit_monthly")
+    STRIPE_PRICE_FLOWKIT_ONEOFF = os.environ.get("STRIPE_PRICE_FLOWKIT_ONEOFF", "price_demo_flowkit_oneoff")
+    STRIPE_PRICE_LAUNCHPACK_MONTHLY = os.environ.get("STRIPE_PRICE_LAUNCHPACK_MONTHLY", "price_demo_launchpack_monthly")
+    STRIPE_PRICE_LAUNCHPACK_ONEOFF = os.environ.get("STRIPE_PRICE_LAUNCHPACK_ONEOFF", "price_demo_launchpack_oneoff")
 
 # Feature gating by plan
 FEATURES_BY_PLAN = {

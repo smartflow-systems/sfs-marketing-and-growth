@@ -76,5 +76,21 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SmartFlow Premium Visual Effects -->
+    <script src="{{ url_for('static', filename='js/flowing-stars.js') }}"></script>
+    <script>
+        // Initialize flowing stars animation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Only initialize on desktop for performance
+            if (window.innerWidth > 768) {
+                try {
+                    new SmartFlowStars();
+                } catch (e) {
+                    console.log('Premium effects not available:', e);
+                }
+            }
+        });
+    </script>
 </body>
 </html>

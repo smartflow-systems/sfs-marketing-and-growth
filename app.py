@@ -548,55 +548,56 @@ def notification_settings():
 
 def _send_booking_reminders():
     """Background job to send booking reminders"""
-    try:
-        from models import Tenant, Booking, ReminderLog
-        now = datetime.utcnow()
-        # Scan all tenants that have settings (fallback to demo-tenant if none)
-        tenant_ids = [t.id for t in Tenant.query.all()]
-        for tid in tenant_ids:
-            s = get_or_create_notif_settings(tid)
-            hours = int(s.reminder_hours_before or 24)
+    with app.app_context():
+        try:
+            from models import Tenant, Booking, ReminderLog
+            now = datetime.utcnow()
+            # Scan all tenants that have settings (fallback to demo-tenant if none)
+            tenant_ids = [t.id for t in Tenant.query.all()]
+            for tid in tenant_ids:
+                s = get_or_create_notif_settings(tid)
+                hours = int(s.reminder_hours_before or 24)
 
-            # Window: appointments that start between (now + hours) and (now + hours + 5min)
-            win_start = now + timedelta(hours=hours)
-            win_end = win_start + timedelta(minutes=5)
+                # Window: appointments that start between (now + hours) and (now + hours + 5min)
+                win_start = now + timedelta(hours=hours)
+                win_end = win_start + timedelta(minutes=5)
 
-            candidates = (Booking.query
-                          .filter(Booking.tenant_id==tid,
-                                  Booking.status=="confirmed",
-                                  Booking.start_at >= win_start,
-                                  Booking.start_at < win_end)
-                          .all())
-            for b in candidates:
-                # Email
-                if notif_ok(tid, "email") and b.customer_email:
-                    already = ReminderLog.query.filter_by(booking_id=b.id, channel="email", kind="before").first()
-                    if not already:
-                        body = f"Reminder: {b.customer_name}, you have an appointment at {b.start_at}."
-                        try:
-                            send_email_smtp(b.customer_email, "Appointment reminder", body)
-                            db.session.add(ReminderLog(tenant_id=tid, booking_id=b.id, channel="email", kind="before"))
-                            db.session.commit()
-                            print(f"[reminder] email sent for {b.id}")
-                        except Exception as e:
-                            print("[reminder] email error:", e)
-
-                # SMS
-                if notif_ok(tid, "sms") and b.customer_phone:
-                    already = ReminderLog.query.filter_by(booking_id=b.id, channel="sms", kind="before").first()
-                    if not already:
-                        msg = f"Reminder: your appointment is at {b.start_at}."
-                        try:
-                            from onboarding import send_twilio_message
-                            ok = send_twilio_message(b.customer_phone, msg)
-                            if ok:
-                                db.session.add(ReminderLog(tenant_id=tid, booking_id=b.id, channel="sms", kind="before"))
+                candidates = (Booking.query
+                              .filter(Booking.tenant_id==tid,
+                                      Booking.status=="confirmed",
+                                      Booking.start_at >= win_start,
+                                      Booking.start_at < win_end)
+                              .all())
+                for b in candidates:
+                    # Email
+                    if notif_ok(tid, "email") and b.customer_email:
+                        already = ReminderLog.query.filter_by(booking_id=b.id, channel="email", kind="before").first()
+                        if not already:
+                            body = f"Reminder: {b.customer_name}, you have an appointment at {b.start_at}."
+                            try:
+                                send_email_smtp(b.customer_email, "Appointment reminder", body)
+                                db.session.add(ReminderLog(tenant_id=tid, booking_id=b.id, channel="email", kind="before"))
                                 db.session.commit()
-                                print(f"[reminder] sms sent for {b.id}")
-                        except Exception as e:
-                            print("[reminder] sms error:", e)
-    except Exception as e:
-        print("[scheduler] loop error:", e)
+                                print(f"[reminder] email sent for {b.id}")
+                            except Exception as e:
+                                print("[reminder] email error:", e)
+
+                    # SMS
+                    if notif_ok(tid, "sms") and b.customer_phone:
+                        already = ReminderLog.query.filter_by(booking_id=b.id, channel="sms", kind="before").first()
+                        if not already:
+                            msg = f"Reminder: your appointment is at {b.start_at}."
+                            try:
+                                from onboarding import send_twilio_message
+                                ok = send_twilio_message(b.customer_phone, msg)
+                                if ok:
+                                    db.session.add(ReminderLog(tenant_id=tid, booking_id=b.id, channel="sms", kind="before"))
+                                    db.session.commit()
+                                    print(f"[reminder] sms sent for {b.id}")
+                            except Exception as e:
+                                print("[reminder] sms error:", e)
+        except Exception as e:
+            print("[scheduler] loop error:", e)
 
 # Initialize APScheduler
 scheduler = BackgroundScheduler(daemon=True)
