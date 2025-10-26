@@ -9,8 +9,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     {% block extra_css %}{% endblock %}
+    <style>
+        body {
+            background: #0D0D0D;
+            color: #FFFFFF;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
 </head>
-<body>
+<body style="background: #0D0D0D; color: #FFFFFF;">
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-black">
         <div class="container">
