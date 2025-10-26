@@ -20,6 +20,13 @@
     --sf-muted: rgba(233, 230, 223, 0.8);
 }
 
+/* Force dark background */
+body {
+    background: #0D0D0D !important;
+    color: #FFFFFF !important;
+    min-height: 100vh;
+}
+
 /* Circuit Background Animation Container */
 #circuit-canvas {
     position: fixed;
