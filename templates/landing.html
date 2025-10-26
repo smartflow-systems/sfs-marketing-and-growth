@@ -1,7 +1,121 @@
-
 {% extends "base.html" %}
 
-{% block title %}SmartFlow Systems - Premium Booking Platform{% endblock %}
+{% block extra_css %}
+<style>
+    .hero {
+        text-align: center;
+        padding: 60px 20px;
+        margin-bottom: 40px;
+    }
+
+    .hero h1 {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        background: linear-gradient(135deg, var(--sf-gold), var(--sf-gold-bright));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 20px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        animation: fadeInUp 0.8s ease;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hero p {
+        font-size: 1.25rem;
+        color: var(--sf-muted);
+        margin-bottom: 30px;
+        animation: fadeInUp 0.8s ease 0.2s backwards;
+    }
+
+    .cta-button {
+        animation: fadeInUp 0.8s ease 0.4s backwards;
+        font-size: 18px;
+        padding: 16px 48px;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-top: 40px;
+    }
+
+    .feature-card {
+        background: linear-gradient(140deg, 
+            rgba(212, 175, 55, 0.06), 
+            rgba(20, 17, 15, 0.7), 
+            rgba(11, 11, 11, 0.6));
+        backdrop-filter: saturate(170%) blur(16px) brightness(1.03);
+        border: 2px solid rgba(212, 175, 55, 0.35);
+        border-radius: 16px;
+        padding: 28px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .feature-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.1), 
+            transparent);
+        transition: left 0.6s ease;
+    }
+
+    .feature-card:hover {
+        background: linear-gradient(140deg, 
+            rgba(212, 175, 55, 0.1), 
+            rgba(20, 17, 15, 0.85), 
+            rgba(11, 11, 11, 0.75));
+        border-color: rgba(212, 175, 55, 0.5);
+        transform: translateY(-6px);
+        box-shadow: 
+            0 0 25px rgba(212, 175, 55, 0.4),
+            0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .feature-card:hover::after {
+        left: 100%;
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 16px;
+        display: inline-block;
+        filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
+    }
+
+    .feature-card h3 {
+        color: var(--sf-gold);
+        font-size: 1.4rem;
+        margin-bottom: 12px;
+        font-weight: 700;
+    }
+
+    .feature-card p {
+        color: var(--sf-muted);
+        line-height: 1.7;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <!-- Circuit Background Canvas -->
