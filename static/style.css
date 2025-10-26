@@ -126,18 +126,19 @@ footer {
 /* Ultra-Realistic Glassmorphism Cards with Golden Tint */
 .sf-glass {
     position: relative;
-    background: linear-gradient(145deg, rgba(212,175,55,.08), rgba(20,17,15,.8), rgba(11,11,11,.65));
-    backdrop-filter: saturate(180%) blur(20px) brightness(1.06);
-    border: 1px solid rgba(212,175,55,.4);
-    border-top: 1px solid rgba(255,255,255,.22);
-    border-left: 1px solid rgba(255,255,255,.12);
-    border-radius: 20px;
+    background: linear-gradient(145deg, rgba(212,175,55,.08), rgba(20,17,15,.85), rgba(11,11,11,.7));
+    backdrop-filter: saturate(180%) blur(24px) brightness(1.08);
+    border: 1px solid rgba(212,175,55,.45);
+    border-top: 1px solid rgba(255,255,255,.25);
+    border-left: 1px solid rgba(255,255,255,.15);
+    border-radius: 24px;
     padding: 24px;
     box-shadow:
-        0 16px 64px rgba(0,0,0,.4),
-        inset 0 1px 0 rgba(255,255,255,.18),
-        inset 0 -1px 0 rgba(0,0,0,.12),
-        0 0 0 1px rgba(212,175,55,.2);
+        0 20px 70px rgba(0,0,0,.45),
+        0 8px 24px rgba(212,175,55,.15),
+        inset 0 1px 0 rgba(255,255,255,.2),
+        inset 0 -1px 0 rgba(0,0,0,.15),
+        0 0 0 1px rgba(212,175,55,.25);
     transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
     overflow: hidden;
 }
@@ -155,17 +156,17 @@ footer {
 }
 
 .sf-glass:hover {
-    background: linear-gradient(145deg, rgba(212,175,55,.12), rgba(20,17,15,.95), rgba(11,11,11,.8));
-    border-color: rgba(212,175,55,.6);
-    border-top-color: rgba(255,221,0,.3);
-    transform: translateY(-4px);
+    background: linear-gradient(145deg, rgba(212,175,55,.15), rgba(20,17,15,.95), rgba(11,11,11,.85));
+    border-color: rgba(212,175,55,.65);
+    border-top-color: rgba(255,221,0,.35);
+    transform: translateY(-6px) scale(1.02);
     box-shadow:
-        0 0 25px rgba(212,175,55,.4),
-        0 0 12px rgba(255,221,0,.3),
-        0 24px 80px rgba(0,0,0,.5),
-        inset 0 1px 0 rgba(255,255,255,.25),
-        inset 0 -1px 0 rgba(0,0,0,.15),
-        0 0 0 2px rgba(212,175,55,.3);
+        0 0 30px rgba(212,175,55,.5),
+        0 0 15px rgba(255,221,0,.4),
+        0 28px 90px rgba(0,0,0,.55),
+        inset 0 2px 0 rgba(255,255,255,.3),
+        inset 0 -1px 0 rgba(0,0,0,.2),
+        0 0 0 2px rgba(212,175,55,.4);
     animation: sf-golden-pulse 2s ease-in-out infinite alternate;
 }
 
