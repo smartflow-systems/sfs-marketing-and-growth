@@ -52,49 +52,9 @@
     }
 
     .feature-card {
-        background: linear-gradient(140deg, 
-            rgba(212, 175, 55, 0.06), 
-            rgba(20, 17, 15, 0.7), 
-            rgba(11, 11, 11, 0.6));
-        backdrop-filter: saturate(170%) blur(16px) brightness(1.03);
-        border: 2px solid rgba(212, 175, 55, 0.35);
-        border-radius: 16px;
-        padding: 28px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
         cursor: pointer;
     }
 
-    .feature-card::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, 
-            transparent, 
-            rgba(255, 255, 255, 0.1), 
-            transparent);
-        transition: left 0.6s ease;
-    }
-
-    .feature-card:hover {
-        background: linear-gradient(140deg, 
-            rgba(212, 175, 55, 0.1), 
-            rgba(20, 17, 15, 0.85), 
-            rgba(11, 11, 11, 0.75));
-        border-color: rgba(212, 175, 55, 0.5);
-        transform: translateY(-6px);
-        box-shadow: 
-            0 0 25px rgba(212, 175, 55, 0.4),
-            0 12px 40px rgba(0, 0, 0, 0.4);
-    }
-
-    .feature-card:hover::after {
-        left: 100%;
-    }
 
     .feature-icon {
         font-size: 2.5rem;
@@ -125,14 +85,14 @@
 <section class="section" style="padding-top: 6rem; padding-bottom: 4rem; position: relative; overflow: hidden;">
     <div class="container">
         <div style="text-align: center; max-width: 900px; margin: 0 auto; position: relative; z-index: 10;">
-            <div class="badge sf-glass" style="margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.25rem; animation: fadeInUp 0.6s ease-out;">
+            <div class="badge border-gold" style="background: rgba(255, 215, 0, 0.1); color: var(--sf-gold); margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.25rem; animation: fadeInUp 0.6s ease-out;">
                 <span style="width: 8px; height: 8px; background: var(--sf-gold); border-radius: 50%; animation: pulse 2s infinite;"></span>
                 Next-Generation Booking Platform
             </div>
 
             <h1 style="margin-bottom: 2rem; animation: fadeInUp 0.8s ease-out; font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.1;">
                 <span style="color: var(--sf-white); display: block;">SmartFlow</span>
-                <span class="sf-shine" style="display: block; margin-top: 0.5rem;">Systems</span>
+                <span class="gold-gradient" style="display: block; margin-top: 0.5rem;">Systems</span>
             </h1>
 
             <p style="font-size: 1.25rem; color: var(--sf-muted); margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6; animation: fadeInUp 1s ease-out;">
@@ -141,10 +101,10 @@
             </p>
 
             <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; animation: fadeInUp 1.2s ease-out;">
-                <a href="{{ url_for('pricing') }}" class="sf-btn" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                <a href="{{ url_for('pricing') }}" class="btn btn-gold" style="padding: 1rem 2rem; font-size: 1.1rem;">
                     View Pricing →
                 </a>
-                <a href="#features" class="btn-ghost hover-elevate" style="padding: 1rem 2rem; font-size: 1.1rem; background: rgba(255, 255, 255, 0.04); color: var(--sf-white); border: 1px solid rgba(255, 215, 0, 0.18); border-radius: 12px; text-decoration: none; transition: all 0.3s ease;">
+                <a href="#features" class="btn btn-outline-gold" style="padding: 1rem 2rem; font-size: 1.1rem; text-decoration: none;">
                     Learn More
                 </a>
             </div>
@@ -156,12 +116,12 @@
 <section id="features" class="section" style="padding: 5rem 0; position: relative;">
     <div class="container">
         <h2 style="text-align: center; margin-bottom: 4rem; font-size: clamp(2rem, 4vw, 3rem);">
-            <span class="sf-shine">Premium Features</span>
+            <span class="gold-gradient">Premium Features</span>
         </h2>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; position: relative; z-index: 10;">
-            <div class="sf-glass hover-elevate" style="padding: 2.5rem; transition: all 0.4s ease;">
-                <div style="width: 3.5rem; height: 3.5rem; background: var(--sf-gold-grad); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);">
+            <div class="glass-card feature-card">
+                <div style="width: 3.5rem; height: 3.5rem; background: linear-gradient(135deg, var(--sf-gold), var(--sf-gold-2)); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--sf-black);">
                         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                         <polyline points="22 4 12 14.01 9 11.01"></polyline>
@@ -173,8 +133,8 @@
                 </p>
             </div>
 
-            <div class="sf-glass hover-elevate" style="padding: 2.5rem; transition: all 0.4s ease;">
-                <div style="width: 3.5rem; height: 3.5rem; background: var(--sf-gold-grad); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);">
+            <div class="glass-card feature-card">
+                <div style="width: 3.5rem; height: 3.5rem; background: linear-gradient(135deg, var(--sf-gold), var(--sf-gold-2)); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--sf-black);">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
@@ -187,8 +147,8 @@
                 </p>
             </div>
 
-            <div class="sf-glass hover-elevate" style="padding: 2.5rem; transition: all 0.4s ease;">
-                <div style="width: 3.5rem; height: 3.5rem; background: var(--sf-gold-grad); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);">
+            <div class="glass-card feature-card">
+                <div style="width: 3.5rem; height: 3.5rem; background: linear-gradient(135deg, var(--sf-gold), var(--sf-gold-2)); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--sf-black);">
                         <circle cx="12" cy="12" r="10"></circle>
                         <polyline points="12 6 12 12 16 14"></polyline>
