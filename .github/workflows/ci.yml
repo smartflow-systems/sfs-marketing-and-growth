@@ -1,0 +1,8 @@
+mkdir -p .github/workflows && cat > .github/workflows/ci.yml <<'YAML' name: ci on: [push, pull_request] jobs: call: uses: smartflow-systems/SmartFlowSite/.github/workflows/sfs-ci-deploy.yml@main YAML && git add .github/workflows/ci.yml && git commit -m "ci: adopt SmartFlow reusable deploy workflow" && git push
+mkdir -p .github/workflows
+cat > .github/workflows/ci.yml <<'YAML'
+name: ci
+on: [push, pull_request]
+jobs:
+  call:
+    uses: smartflow-systems/SmartFlowSite/.github/workflows/sfs-ci-deploy.yml@main
