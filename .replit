@@ -1,12 +1,21 @@
+entrypoint = "index.html"
 modules = ["nodejs-20", "python-3.11"]
 
+hidden = [".pythonlibs", "node_modules", "dist"]
+
 [nix]
-channel = "stable-25_05"
-packages = ["openssl", "postgresql", "gh"]
+channel = "stable-24_05"
+
+[env]
+PATH = "/home/runner/$REPL_SLUG/.config/npm/node_global/bin:/home/runner/$REPL_SLUG/node_modules/.bin:${PATH}"
+npm_config_prefix = "/home/runner/$REPL_SLUG/.config/npm/node_global"
 
 [deployment]
-deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
+deploymentTarget = "static"
+build = ["npm", "run", "build"]
+run = ["npm", "run", "preview"]
+publicDir = "dist"
+ignorePorts = false
 
 [workflows]
 runButton = "Project"
@@ -18,28 +27,37 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start application"
+args = "React Frontend"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Flask Backend (Optional)"
 
 [[workflows.workflow]]
-name = "Start application"
+name = "React Frontend"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+args = "npm install && npm run dev"
+waitForPort = 3000
+
+[[workflows.workflow]]
+name = "Flask Backend (Optional)"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python app.py"
 waitForPort = 5000
 
 [agent]
 integrations = ["twilio_send_message==1.0.0", "flask_stripe==1.0.0"]
 
 [[ports]]
-localPort = 5000
+localPort = 3000
 externalPort = 80
 
 [[ports]]
-localPort = 5173
-externalPort = 5173
-
-[[ports]]
-localPort = 42425
-externalPort = 3000
+localPort = 5000
+externalPort = 5000

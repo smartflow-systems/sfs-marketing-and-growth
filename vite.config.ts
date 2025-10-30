@@ -10,7 +10,12 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0', // Required for Replit
     port: 3000,
+    strictPort: true,
+    hmr: {
+      clientPort: 443, // Required for Replit
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
@@ -21,5 +26,10 @@ export default defineConfig({
         changeOrigin: true,
       },
     },
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 3000,
+    strictPort: true,
   },
 })
