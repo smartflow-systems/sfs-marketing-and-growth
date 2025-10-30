@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        text-align: center;
+        padding: 60px 20px;
+        margin-bottom: 40px;
+    }
+
+    .hero h1 {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        background: linear-gradient(135deg, var(--sf-gold), var(--sf-gold-bright));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 20px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        animation: fadeInUp 0.8s ease;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .hero p {
+        font-size: 1.25rem;
+        color: var(--sf-muted);
+        margin-bottom: 30px;
+        animation: fadeInUp 0.8s ease 0.2s backwards;
+    }
+
+    .cta-button {
+        animation: fadeInUp 0.8s ease 0.4s backwards;
+        font-size: 18px;
+        padding: 16px 48px;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-top: 40px;
+    }
+
+    .feature-card {
+        cursor: pointer;
+    }
+
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 16px;
+        display: inline-block;
+        filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
+    }
+
+    .feature-card h3 {
+        color: var(--sf-gold);
+        font-size: 1.4rem;
+        margin-bottom: 12px;
+        font-weight: 700;
+    }
+
+    .feature-card p {
+        color: var(--sf-muted);
+        line-height: 1.7;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Circuit Background Canvas -->
+<canvas id="circuit-canvas"></canvas>
+
+<!-- Hero Section with Premium Design -->
+<section class="section" style="padding-top: 6rem; padding-bottom: 4rem; position: relative; overflow: hidden;">
+    <div class="container">
+        <div style="text-align: center; max-width: 900px; margin: 0 auto; position: relative; z-index: 10;">
+            <div class="badge border-gold" style="background: rgba(255, 215, 0, 0.1); color: var(--sf-gold); margin-bottom: 2rem; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.25rem; animation: fadeInUp 0.6s ease-out;">
+                <span style="width: 8px; height: 8px; background: var(--sf-gold); border-radius: 50%; animation: pulse 2s infinite;"></span>
+                Next-Generation Booking Platform
+            </div>
+
+            <h1 style="margin-bottom: 2rem; animation: fadeInUp 0.8s ease-out; font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.1;">
+                <span style="color: var(--sf-white); display: block;">SmartFlow</span>
+                <span class="gold-gradient" style="display: block; margin-top: 0.5rem;">Systems</span>
+            </h1>
+
+            <p style="font-size: 1.25rem; color: var(--sf-muted); margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.6; animation: fadeInUp 1s ease-out;">
+                Enterprise-grade booking and reminder system with automated notifications, 
+                multi-tenant support, and premium user experience.
+            </p>
+
+            <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; animation: fadeInUp 1.2s ease-out;">
+                <a href="{{ url_for('pricing') }}" class="btn btn-gold" style="padding: 1rem 2rem; font-size: 1.1rem;">
+                    View Pricing →
+                </a>
+                <a href="#features" class="btn btn-outline-gold" style="padding: 1rem 2rem; font-size: 1.1rem; text-decoration: none;">
+                    Learn More
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Premium Features Section -->
+<section id="features" class="section" style="padding: 5rem 0; position: relative;">
+    <div class="container">
+        <h2 style="text-align: center; margin-bottom: 4rem; font-size: clamp(2rem, 4vw, 3rem);">
+            <span class="gold-gradient">Premium Features</span>
+        </h2>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; position: relative; z-index: 10;">
+            <div class="glass-card feature-card">
+                <div style="width: 3.5rem; height: 3.5rem; background: linear-gradient(135deg, var(--sf-gold), var(--sf-gold-2)); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--sf-black);">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
+                <h3 style="color: var(--sf-gold); margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;">Automated Reminders</h3>
+                <p style="color: var(--sf-muted); line-height: 1.7; font-size: 1.05rem;">
+                    Smart notification system sends email and SMS reminders before appointments automatically.
+                </p>
+            </div>
+
+            <div class="glass-card feature-card">
+                <div style="width: 3.5rem; height: 3.5rem; background: linear-gradient(135deg, var(--sf-gold), var(--sf-gold-2)); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--sf-black);">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <h3 style="color: var(--sf-gold); margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;">Multi-Tenant</h3>
+                <p style="color: var(--sf-muted); line-height: 1.7; font-size: 1.05rem;">
+                    Secure tenant isolation with role-based access control and team management.
+                </p>
+            </div>
+
+            <div class="glass-card feature-card">
+                <div style="width: 3.5rem; height: 3.5rem; background: linear-gradient(135deg, var(--sf-gold), var(--sf-gold-2)); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--sf-black);">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <h3 style="color: var(--sf-gold); margin-bottom: 1rem; font-size: 1.5rem; font-weight: 700;">Real-Time Scheduling</h3>
+                <p style="color: var(--sf-muted); line-height: 1.7; font-size: 1.05rem;">
+                    Background job processing checks for upcoming appointments every 5 minutes.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.07) !important;
+    border-color: rgba(255, 215, 0, 0.35) !important;
+}
+</style>
+{% endblock %}
