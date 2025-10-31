@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { Image as ImageIcon, Download, Sparkles } from 'lucide-react'
-import html2canvas from 'html2canvas'
+// OPTIMIZED: Lazy load html2canvas (350KB) only when needed
 
 interface Template {
   id: string
@@ -64,6 +64,9 @@ export default function OGImageGenerator() {
     setGenerating(true)
 
     try {
+      // OPTIMIZED: Dynamically import html2canvas only when generating
+      const html2canvas = (await import('html2canvas')).default
+
       // Wait a bit for rendering
       await new Promise((resolve) => setTimeout(resolve, 100))
 

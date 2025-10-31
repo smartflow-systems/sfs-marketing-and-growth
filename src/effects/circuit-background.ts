@@ -1,10 +1,13 @@
-// Circuit board animation for background
+// Circuit board animation for background - OPTIMIZED
 export function initCircuitBackground() {
   const canvas = document.getElementById('circuit-canvas') as HTMLCanvasElement
   if (!canvas) return
 
   const ctx = canvas.getContext('2d')
   if (!ctx) return
+
+  let animationId: number | null = null
+  let isVisible = true
 
   // Set canvas size
   const resize = () => {
@@ -23,8 +26,9 @@ export function initCircuitBackground() {
   }
 
   const nodes: Node[] = []
-  const nodeCount = 50
+  const nodeCount = 35 // Reduced from 50 for better performance
   const connectionDistance = 150
+  const connectionDistanceSq = connectionDistance * connectionDistance // Pre-calculate squared distance
   const goldAlpha = 0.15
 
   // Initialize nodes
@@ -37,9 +41,18 @@ export function initCircuitBackground() {
     })
   }
 
-  // Animation loop
+  // Pause animation when tab is hidden (saves CPU/battery)
+  const handleVisibilityChange = () => {
+    isVisible = !document.hidden
+    if (isVisible && !animationId) {
+      animate()
+    }
+  }
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
+  // Animation loop - OPTIMIZED
   function animate() {
-    if (!ctx || !canvas) return
+    if (!ctx || !canvas || !isVisible) return
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -53,14 +66,16 @@ export function initCircuitBackground() {
       if (node.x < 0 || node.x > canvas.width) node.vx *= -1
       if (node.y < 0 || node.y > canvas.height) node.vy *= -1
 
-      // Draw connections
+      // Draw connections - OPTIMIZED: Use squared distance to avoid Math.sqrt()
       for (let j = i + 1; j < nodes.length; j++) {
         const other = nodes[j]
         const dx = other.x - node.x
         const dy = other.y - node.y
-        const distance = Math.sqrt(dx * dx + dy * dy)
+        const distanceSq = dx * dx + dy * dy // Squared distance (no sqrt needed!)
 
-        if (distance < connectionDistance) {
+        if (distanceSq < connectionDistanceSq) {
+          // Only calculate sqrt when needed for opacity
+          const distance = Math.sqrt(distanceSq)
           const opacity = (1 - distance / connectionDistance) * goldAlpha
           ctx.strokeStyle = `rgba(255, 215, 0, ${opacity})`
           ctx.lineWidth = 1
@@ -78,8 +93,18 @@ export function initCircuitBackground() {
       ctx.fill()
     })
 
-    requestAnimationFrame(animate)
+    animationId = requestAnimationFrame(animate)
   }
 
   animate()
+
+  // Cleanup function to stop animation and remove listeners
+  return () => {
+    if (animationId) {
+      cancelAnimationFrame(animationId)
+      animationId = null
+    }
+    window.removeEventListener('resize', resize)
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }
 }
