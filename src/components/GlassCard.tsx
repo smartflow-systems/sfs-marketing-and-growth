@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 
 interface GlassCardProps {
   title: string;
@@ -11,36 +11,39 @@ interface GlassCardProps {
   onClick?: () => void;
 }
 
-export default function GlassCard({ 
-  title, 
-  children, 
-  cta, 
+// OPTIMIZED: Memoized component to prevent unnecessary re-renders
+const GlassCard = React.memo(function GlassCard({
+  title,
+  children,
+  cta,
   highlighted = false,
   toggleable = false,
   showStars = true,
   sparkleIntensity = 'medium',
-  onClick 
+  onClick
 }: GlassCardProps) {
   const [isHighlighted, setIsHighlighted] = useState(highlighted);
-  
-  const handleClick = () => {
+
+  // OPTIMIZED: Memoized click handler
+  const handleClick = useCallback(() => {
     if (toggleable) {
-      setIsHighlighted(!isHighlighted);
+      setIsHighlighted(prev => !prev);
     }
     if (onClick) {
       onClick();
     }
-  };
-  
-  const cardClasses = [
+  }, [toggleable, onClick]);
+
+  // OPTIMIZED: Memoized class computation
+  const cardClasses = useMemo(() => [
     'sf-glass',
     isHighlighted ? 'sf-glass-highlighted' : '',
     toggleable ? 'cursor-pointer' : '',
     showStars ? 'sf-stars' : ''
-  ].filter(Boolean).join(' ');
-  
+  ].filter(Boolean).join(' '), [isHighlighted, toggleable, showStars]);
+
   return (
-    <div 
+    <div
       className={cardClasses}
       onClick={handleClick}
       data-sparkle-intensity={sparkleIntensity}
@@ -57,4 +60,6 @@ export default function GlassCard({
       {cta && <div className="sf-mt-4">{cta}</div>}
     </div>
   );
-}
+});
+
+export default GlassCard;

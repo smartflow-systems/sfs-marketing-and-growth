@@ -36,7 +36,7 @@ html {
   opacity: 0.4;
 }
 
-/* Fade in animations */
+/* Fade in animations - OPTIMIZED */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -50,6 +50,8 @@ html {
 
 .fade-in-up {
   animation: fadeInUp 0.8s ease-out;
+  /* Performance hint for animated elements */
+  will-change: opacity, transform;
 }
 
 /* Stagger animation for cards */
@@ -138,20 +140,22 @@ html {
   opacity: 1;
 }
 
-/* Modal backdrop */
+/* Modal backdrop - OPTIMIZED */
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.85); /* More opaque instead of blur */
+  /* Removed expensive backdrop-filter for better performance */
   z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  /* Performance hints */
+  isolation: isolate;
 }
 
 /* Success checkmark animation */
@@ -169,7 +173,7 @@ html {
   animation: checkmark 0.8s ease-in-out;
 }
 
-/* Mobile menu */
+/* Mobile menu - OPTIMIZED */
 .mobile-menu {
   position: fixed;
   top: 0;
@@ -177,10 +181,13 @@ html {
   right: 0;
   bottom: 0;
   background: rgba(13, 13, 13, 0.98);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(8px); /* Reduced from 20px to 8px */
   z-index: 100;
   transform: translateX(-100%);
   transition: transform 0.3s ease-in-out;
+  /* Performance hints */
+  isolation: isolate;
+  will-change: transform;
 }
 
 .mobile-menu.open {
