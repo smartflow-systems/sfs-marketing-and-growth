@@ -192,5 +192,3 @@
 }
 </style>
 {% endblock %}
-<!-- SFS_VERSION -->
-<small style="opacity:.7">Build: {{ config.get("SFS_BUILD","dev") }}</small>

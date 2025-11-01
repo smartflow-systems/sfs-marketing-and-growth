@@ -24,12 +24,6 @@ db = SQLAlchemy(model_class=Base)
 
 # Create the app
 app = Flask(__name__)
-app.config["SFS_BUILD"]=__import__("time").strftime("%Y-%m-%d %H:%M:%S")
-app.config["TEMPLATES_AUTO_RELOAD"]=True
-try:
-    app.jinja_env.cache={}
-except Exception:
-    pass
 app.secret_key = os.environ.get("SESSION_SECRET", "fallback-secret")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
@@ -613,10 +607,3 @@ try:
     print("[scheduler] Started booking reminders scheduler")
 except Exception as e:
     print("[scheduler] start error:", e)
-
-@app.after_request
-def add_no_cache(resp):
-    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
-    resp.headers["Pragma"] = "no-cache"
-    resp.headers["Expires"] = "0"
-    return resp
