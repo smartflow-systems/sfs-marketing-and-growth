@@ -24,11 +24,6 @@ db = SQLAlchemy(model_class=Base)
 
 # Create the app
 app = Flask(__name__)
-app.config["TEMPLATES_AUTO_RELOAD"] = True
-try:
-    app.jinja_env.cache = {}
-except Exception:
-    pass
 app.secret_key = os.environ.get("SESSION_SECRET", "fallback-secret")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
