@@ -7,7 +7,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "css:watch": "tailwindcss -i ./src/styles/input.css -o ./static/css/output.css --watch",
-    "css:build": "tailwindcss -i ./src/styles/input.css -o ./static/css/output.css --minify"
+    "css:build": "tailwindcss -i ./src/styles/input.css -o ./static/css/output.css --minify",
+    "sync": "bash scripts/auto-sync.sh",
+    "pull": "git pull --no-edit",
+    "push": "git push",
+    "auto-commit": "git add . && git commit -m 'chore: auto-commit [Auto-Sync]' || true",
+    "sync-all": "npm run auto-commit && npm run sync"
   },
   "dependencies": {
     "@stripe/stripe-js": "^2.2.0",
