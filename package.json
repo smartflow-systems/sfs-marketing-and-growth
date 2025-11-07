@@ -1,0 +1,31 @@
+{
+  "name": "sfs-marketing-and-growth",
+  "version": "1.0.0",
+  "description": "SmartFlow Systems - Marketing & Growth Stack",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "css:watch": "tailwindcss -i ./src/styles/input.css -o ./static/css/output.css --watch",
+    "css:build": "tailwindcss -i ./src/styles/input.css -o ./static/css/output.css --minify"
+  },
+  "dependencies": {
+    "@stripe/stripe-js": "^2.2.0",
+    "axios": "^1.6.2",
+    "chart.js": "^4.4.0",
+    "react-chartjs-2": "^5.2.0",
+    "date-fns": "^2.30.0",
+    "react-calendar": "^4.7.0",
+    "framer-motion": "^10.16.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.10",
+    "@types/node": "^20.10.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "tailwindcss-animate": "^1.0.7",
+    "vite": "^5.0.4"
+  }
+}
