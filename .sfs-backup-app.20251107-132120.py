@@ -49,7 +49,7 @@ signer = URLSafeTimedSerializer(app.secret_key)
 with app.app_context():
     # Import models to ensure tables are created
     from models import Tenant, User, Membership, Invitation, AuditLog, NotificationSettings, Booking, ReminderLog
-    # SFS: moved to init_db(); was: # SFS: moved to init_db(); was: db.create_all()
+    # SFS: moved to init_db(); was: db.create_all()
 
 # Import utilities
 from onboarding import send_email_smtp, onboarding_email
@@ -639,7 +639,7 @@ db = SQLAlchemy(app)
 def init_db():
     with app.app_context():
         try:
-            # SFS: moved to init_db(); was: # SFS: moved to init_db(); was: db.create_all()
+            # SFS: moved to init_db(); was: db.create_all()
             app.logger.info("DB ready ✅ using %s", DB_URL)
         except OperationalError as e:
             app.logger.warning("DB unavailable, running degraded: %s", e)
@@ -657,7 +657,7 @@ def db_health():
 def init_db():
     with app.app_context():
         try:
-            # SFS: moved to init_db(); was: # SFS: moved to init_db(); was: db.create_all()
+            # SFS: moved to init_db(); was: db.create_all()
             app.logger.info("DB ready ✅ using %s", DB_URL)
         except OperationalError as e:
             app.logger.warning("DB unavailable, running degraded: %s", e)
@@ -666,7 +666,7 @@ def init_db():
 def init_db():
     with app.app_context():
         try:
-            # SFS: moved to init_db(); was: db.create_all()
+            db.create_all()
             app.logger.info("DB ready ✅ using %s", DB_URL)
         except OperationalError as e:
             app.logger.warning("DB unavailable, running degraded: %s", e)
