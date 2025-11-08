@@ -1,0 +1,554 @@
+ROLE: Senior full-stack engineer. Create a brand-new Flask project on Replit for “SmartFlow Systems”.
+Make/overwrite files exactly as specified, install dependencies, run the server on $PORT,
+and print the live URL and next steps when done.
+
+GOALS:
+- Clean GitHub connection (no secrets committed)
+- Flask app with:
+  • Black+Gold landing + pricing section
+  • Stripe Checkout (monthly + one-off) + webhook
+  • Plan gating (starter/flowkit/launchpack)
+  • SQLite (SQLAlchemy) with basic multi-tenant user admin MVP (invite → accept, roles, suspend)
+  • Onboarding helpers (email/SMS) wired for later
+- Ready marketing endpoints (/ , /pricing) to promote & sell
+
+========================================
+1) CREATE/SET FILES
+========================================
+
+A) .gitignore  (exact content)
+-----
+# Replit / Python project ignores
+.replit
+replit.nix
+
+# Virtual environments
+venv/
+env/
+.venv/
+__pycache__/
+
+# Python cache & build
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.log
+*.egg-info/
+dist/
+build/
+
+# Environment / secrets
+.env
+*.secret
+*.key
+secrets.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node (if using frontend)
+node_modules/
+-----
+
+B) requirements.txt
+-----
+Flask>=3.0.0
+gunicorn>=21.2.0
+stripe>=6.0.0
+python-dotenv>=1.0.1
+SQLAlchemy>=2.0.30
+Flask-SQLAlchemy>=3.1.1
+itsdangerous>=2.2.0
+requests>=2.32.0
+# Optional Google Calendar in future
+google-api-python-client>=2.124.0
+google-auth>=2.31.0
+google-auth-oauthlib>=1.2.0
+# Optional Twilio/SMS
+twilio>=9.0.0
+-----
+
+C) config.py
+-----
+import os
+
+class Config:
+    # Flask
+    FLASK_SECRET_KEY = os.getenv("FLASK_SECRET_KEY", "fallback-secret")
+    DEBUG = os.getenv("DEBUG", "False").lower() in ("true","1","yes")
+
+    # Database
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///smartflow.db")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Stripe Keys
+    STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+    STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
+    STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+    # Stripe Price IDs (to be set in Replit Secrets)
+    STRIPE_PRICE_STARTER_MONTHLY     = os.getenv("STRIPE_PRICE_STARTER_MONTHLY")
+    STRIPE_PRICE_FLOWKIT_MONTHLY     = os.getenv("STRIPE_PRICE_FLOWKIT_MONTHLY")
+    STRIPE_PRICE_LAUNCHPACK_MONTHLY  = os.getenv("STRIPE_PRICE_LAUNCHPACK_MONTHLY")
+    STRIPE_PRICE_STARTER_ONEOFF      = os.getenv("STRIPE_PRICE_STARTER_ONEOFF")
+    STRIPE_PRICE_FLOWKIT_ONEOFF      = os.getenv("STRIPE_PRICE_FLOWKIT_ONEOFF")
+    STRIPE_PRICE_LAUNCHPACK_ONEOFF   = os.getenv("STRIPE_PRICE_LAUNCHPACK_ONEOFF")
+
+    # Email (optional SMTP for onboarding + invites)
+    SMTP_HOST = os.getenv("SMTP_HOST")
+    SMTP_PORT = int(os.getenv("SMTP_PORT","587"))
+    SMTP_USER = os.getenv("SMTP_USER")
+    SMTP_PASS = os.getenv("SMTP_PASS")
+    SMTP_FROM = os.getenv("SMTP_FROM","no-reply@smartflowsystems.com")
+
+    # Twilio (optional)
+    TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+    TWILIO_AUTH_TOKEN  = os.getenv("TWILIO_AUTH_TOKEN")
+    TWILIO_PHONE_NUMBER= os.getenv("TWILIO_PHONE_NUMBER")
+
+# Feature gating by plan
+FEATURES_BY_PLAN = {
+    "starter":   ["booking","basic_ai_bot","one_template"],
+    "flowkit":   ["booking","ai_scheduler","sms","portal","two_templates","reports"],
+    "launchpack":["booking","ai_scheduler","sms","portal","reports",
+                  "ai_concierge","analytics","recovery","automations","three_templates","priority_support"]
+}
+-----
+
+D) db_models.py
+-----
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+db = SQLAlchemy()
+
+class Tenant(db.Model):
+    __tablename__ = "tenants"
+    id = db.Column(db.String(64), primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    owner_user_id = db.Column(db.String(64), index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class User(db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.String(64), primary_key=True)
+    email = db.Column(db.String(255), unique=True, index=True, nullable=False)
+    name = db.Column(db.String(200))
+    status = db.Column(db.String(20), default="active") # active|suspended|deleted
+    stripe_customer_id = db.Column(db.String(128), unique=True, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Membership(db.Model):
+    __tablename__ = "memberships"
+    tenant_id = db.Column(db.String(64), db.ForeignKey("tenants.id"), primary_key=True)
+    user_id   = db.Column(db.String(64), db.ForeignKey("users.id"), primary_key=True)
+    role      = db.Column(db.String(20), default="staff") # owner|admin|staff|analyst
+    invited_at   = db.Column(db.DateTime)
+    activated_at = db.Column(db.DateTime)
+
+class Invitation(db.Model):
+    __tablename__ = "invitations"
+    id = db.Column(db.String(64), primary_key=True)
+    tenant_id = db.Column(db.String(64), db.ForeignKey("tenants.id"))
+    email = db.Column(db.String(255), index=True, nullable=False)
+    role  = db.Column(db.String(20), nullable=False)
+    token = db.Column(db.String(512), nullable=False)
+    expires_at = db.Column(db.DateTime, nullable=False)
+    status = db.Column(db.String(20), default="pending") # pending|accepted|expired
+    inviter_user_id = db.Column(db.String(64))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class AuditLog(db.Model):
+    __tablename__ = "audit_logs"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    tenant_id = db.Column(db.String(64), index=True)
+    actor_user_id = db.Column(db.String(64), index=True)
+    action = db.Column(db.String(64))
+    target_type = db.Column(db.String(64))
+    target_id = db.Column(db.String(64))
+    metadata = db.Column(db.Text)   # JSON string (lightweight)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+-----
+
+E) onboarding.py (helpers; optional to wire later)
+-----
+import smtplib
+from email.mime.text import MIMEText
+from config import Config
+
+def send_email_smtp(to_email: str, subject: str, body: str):
+    if not (Config.SMTP_HOST and Config.SMTP_USER and Config.SMTP_PASS):
+        print("[onboarding] SMTP not configured; skipping email.")
+        return
+    msg = MIMEText(body, "plain", "utf-8")
+    msg["Subject"] = subject
+    msg["From"] = Config.SMTP_FROM
+    msg["To"] = to_email
+    with smtplib.SMTP(Config.SMTP_HOST, Config.SMTP_PORT) as server:
+        server.starttls()
+        server.login(Config.SMTP_USER, Config.SMTP_PASS)
+        server.sendmail(Config.SMTP_FROM, [to_email], msg.as_string())
+
+def onboarding_email(plan: str):
+    return f"""Welcome to SmartFlow Systems 👋
+
+You're on the '{plan.title()}' plan.
+
+Next steps:
+1) Connect Google Calendar
+2) Add brand colours (black+gold)
+3) Enable SMS reminders
+— Team SmartFlow
+"""
+-----
+
+F) app.py  (core app: landing, pricing, checkout, webhook, user admin MVP)
+-----
+import os, json, uuid
+from datetime import datetime, timedelta
+from flask import Flask, request, jsonify, render_template_string, redirect
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+import stripe
+
+from config import Config, FEATURES_BY_PLAN
+from db_models import db, Tenant, User, Membership, Invitation, AuditLog
+from onboarding import send_email_smtp, onboarding_email
+
+app = Flask(__name__)
+app.secret_key = Config.FLASK_SECRET_KEY
+app.config["SQLALCHEMY_DATABASE_URI"] = Config.SQLALCHEMY_DATABASE_URI
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = Config.SQLALCHEMY_TRACK_MODIFICATIONS
+
+db.init_app(app)
+with app.app_context():
+    db.create_all()
+
+stripe.api_key = Config.STRIPE_SECRET_KEY
+signer = URLSafeTimedSerializer(app.secret_key)
+
+# --- DEMO helpers (replace with real auth/session) ---
+def get_current_user():
+    # For demo only: ensure one default user & tenant exist
+    u = User.query.filter_by(email="demo@smartflowsystems.com").first()
+    if not u:
+        u = User(id="demo-user", email="demo@smartflowsystems.com", name="Demo User")
+        db.session.add(u); db.session.commit()
+    t = Tenant.query.filter_by(id="demo-tenant").first()
+    if not t:
+        t = Tenant(id="demo-tenant", name="Demo Workspace", owner_user_id=u.id)
+        db.session.add(t); db.session.commit()
+        m = Membership(tenant_id=t.id, user_id=u.id, role="owner",
+                       invited_at=datetime.utcnow(), activated_at=datetime.utcnow())
+        db.session.add(m); db.session.commit()
+    return u, t
+
+def seat_limit_for_plan(plan:str) -> int:
+    return {"starter":2,"flowkit":5,"launchpack":15}.get(plan, 2)
+
+def tenant_active_seats(tenant_id:str) -> int:
+    return Membership.query.filter_by(tenant_id=tenant_id).count()
+
+def log_action(tenant_id, actor_user_id, action, target_type, target_id, metadata=None):
+    rec = AuditLog(tenant_id=tenant_id, actor_user_id=actor_user_id, action=action,
+                   target_type=target_type, target_id=target_id,
+                   metadata=json.dumps(metadata or {}))
+    db.session.add(rec); db.session.commit()
+
+# --- Black + Gold Landing & Pricing ---
+LANDING = """
+<!doctype html><html><head><meta charset="utf-8"><title>SmartFlow Systems</title>
+<style>
+body{margin:0;font-family:system-ui,Arial;background:#0E0B0B;color:#EDEAE6}
+header,footer{padding:24px;text-align:center;border-bottom:1px solid #2A221B}
+footer{border-top:1px solid #2A221B;border-bottom:none;color:#8C7A5A}
+.container{max-width:1100px;margin:0 auto;padding:32px 18px}
+.gold{color:#D4AF37}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.card{background:#171311;border:1px solid #2A221B;border-radius:14px;padding:18px}
+.btn{display:inline-block;padding:10px 14px;border:1px solid #D4AF37;color:#D4AF37;text-decoration:none;border-radius:10px}
+.btn:hover{background:#D4AF37;color:#0E0B0B}
+.price{font-size:22px;margin:4px 0 10px}
+</style></head><body>
+<header><h1 class="gold">SmartFlow Systems</h1><p>Bookings that sell for you.</p></header>
+<div class="container">
+  <p style="opacity:.9;font-size:18px;margin:0 0 18px">
+    AI booking, e-com, and social in a premium black & gold build.
+  </p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:22px">
+    <a class="btn" href="/pricing">See Pricing</a>
+  </div>
+  <div class="grid">
+    <div class="card"><h3 class="gold">Smart Booking</h3><p>Stripe deposits, Calendar sync, no-show SMS.</p></div>
+    <div class="card"><h3 class="gold">AI Social</h3><p>Captions + schedule + niche hashtags.</p></div>
+    <div class="card"><h3 class="gold">Premium Brand</h3><p>Black-and-gold visuals + client portal.</p></div>
+  </div>
+</div>
+<footer>© SmartFlow Systems</footer></body></html>
+"""
+
+PRICING = """
+<!doctype html><html><head><meta charset="utf-8"><title>Pricing — SmartFlow</title>
+<style>body{margin:0;font-family:system-ui,Arial;background:#0E0B0B;color:#EDEAE6}
+.container{max-width:1100px;margin:0 auto;padding:32px 18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.card{background:#161210;border:1px solid #2A221B;border-radius:14px;padding:18px}
+h2,h4{color:#D4AF37;margin:0 0 6px}.price{font-size:22px;margin:4px 0 10px}
+.btn{display:inline-block;padding:10px 14px;border:1px solid #D4AF37;color:#D4AF37;text-decoration:none;border-radius:10px}
+.btn:hover{background:#D4AF37;color:#0E0B0B}</style></head><body>
+<div class="container">
+  <h2>Plans</h2>
+  <div class="grid">
+    <div class="card">
+      <h4>Smart Starter</h4><div class="price">£49/mo · £399 one-off</div>
+      <ul><li>1-page site</li><li>Stripe deposits</li><li>Calendar sync</li><li>Basic AI FAQ bot</li></ul>
+      <a class="btn" href="/checkout?plan=starter&mode=monthly">Start Monthly</a>
+      <a class="btn" href="/checkout?plan=starter&mode=oneoff">One-Off</a>
+    </div>
+    <div class="card">
+      <h4>The Flow Kit</h4><div class="price">£149/mo · £999 one-off</div>
+      <ul><li>AI scheduler</li><li>SMS reminders</li><li>Client portal</li></ul>
+      <a class="btn" href="/checkout?plan=flowkit&mode=monthly">Start Monthly</a>
+      <a class="btn" href="/checkout?plan=flowkit&mode=oneoff">One-Off</a>
+    </div>
+    <div class="card">
+      <h4>Salon Launch Pack</h4><div class="price">£299/mo · £1,999 one-off</div>
+      <ul><li>AI Concierge + analytics</li><li>Recovery automations</li><li>Priority support</li></ul>
+      <a class="btn" href="/checkout?plan=launchpack&mode=monthly">Start Monthly</a>
+      <a class="btn" href="/checkout?plan=launchpack&mode=oneoff">One-Off</a>
+    </div>
+  </div>
+</div></body></html>
+"""
+
+@app.get("/")
+def home(): return render_template_string(LANDING)
+
+@app.get("/pricing")
+def pricing(): return render_template_string(PRICING)
+
+# --- Demo: plan gating endpoint ---
+from config import FEATURES_BY_PLAN
+@app.get("/feature/<name>")
+def feature_access(name):
+    user, tenant = get_current_user()
+    # naive current plan for demo — set by webhook after checkout
+    plan = (tenant.name or "Demo Workspace")
+    # store plan on tenant.name? We'll keep it simple: stash on tenant.owner_user_id for now
+    # in a real app you'd have tenant.plan column. We'll infer via audit last "plan_set"
+    last = AuditLog.query.filter_by(tenant_id=tenant.id, action="plan_set").order_by(AuditLog.id.desc()).first()
+    current_plan = (json.loads(last.metadata).get("plan") if last else "starter")
+    ok = name in FEATURES_BY_PLAN.get(current_plan, [])
+    return (jsonify({"ok":True,"feature":name,"plan":current_plan})
+            if ok else (jsonify({"ok":False,"error":"Upgrade required","plan":current_plan}), 402))
+
+# --- Checkout + Webhook ---
+def _price_for(plan, mode):
+    from config import Config
+    mapping = {
+        ("starter","monthly"):  Config.STRIPE_PRICE_STARTER_MONTHLY,
+        ("flowkit","monthly"):  Config.STRIPE_PRICE_FLOWKIT_MONTHLY,
+        ("launchpack","monthly"): Config.STRIPE_PRICE_LAUNCHPACK_MONTHLY,
+        ("starter","oneoff"):   Config.STRIPE_PRICE_STARTER_ONEOFF,
+        ("flowkit","oneoff"):   Config.STRIPE_PRICE_FLOWKIT_ONEOFF,
+        ("launchpack","oneoff"): Config.STRIPE_PRICE_LAUNCHPACK_ONEOFF,
+    }
+    return mapping.get((plan,mode))
+
+@app.get("/checkout")
+def checkout_redirect():
+    plan = request.args.get("plan","starter")
+    mode = request.args.get("mode","monthly")
+    price_id = _price_for(plan, mode)
+    if not price_id: return "Price not configured", 400
+    user, tenant = get_current_user()
+    session = stripe.checkout.Session.create(
+        mode="subscription" if mode=="monthly" else "payment",
+        line_items=[{"price": price_id, "quantity": 1}],
+        success_url=request.host_url + "success?session_id={CHECKOUT_SESSION_ID}",
+        cancel_url=request.host_url + "pricing",
+        customer_email=user.email,
+        metadata={"tenant_id":tenant.id,"app_user_id":user.id,"plan":plan,"mode":mode},
+    )
+    return redirect(session.url, code=303)
+
+@app.get("/success")
+def success():
+    return "Payment successful — you’ll get onboarding by email. Visit /feature/ai_concierge to test gating."
+
+@app.post("/webhooks/stripe")
+def stripe_webhook():
+    payload = request.data
+    sig = request.headers.get("Stripe-Signature")
+    try:
+        event = stripe.Webhook.construct_event(payload, sig, Config.STRIPE_WEBHOOK_SECRET)
+    except Exception as e:
+        return str(e), 400
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        meta = session.get("metadata") or {}
+        tenant_id = meta.get("tenant_id")
+        plan = meta.get("plan","starter")
+
+        # persist "plan_set" in audit log (simple MVP)
+        log_action(tenant_id, meta.get("app_user_id"), "plan_set", "tenant", tenant_id, {"plan": plan})
+
+        # onboarding email
+        try:
+            send_email_smtp(session["customer_details"]["email"], "Your SmartFlow plan is live", onboarding_email(plan))
+        except Exception as e:
+            print("[onboarding email] error:", e)
+
+    return "", 200
+
+# --- User Admin MVP: Invite → Accept, Roles, Suspend ---
+def generate_invite_token(payload:dict, expires_minutes=15):
+    return signer.dumps(payload), datetime.utcnow() + timedelta(minutes=expires_minutes)
+
+@app.post("/tenants/<tenant_id>/invites")
+def create_invite(tenant_id):
+    user, tenant = get_current_user()
+    if tenant_id != tenant.id: return ("Forbidden", 403)
+    # Check seat cap (MVP: read last plan)
+    last = AuditLog.query.filter_by(tenant_id=tenant.id, action="plan_set").order_by(AuditLog.id.desc()).first()
+    plan = (json.loads(last.metadata).get("plan") if last else "starter")
+    if tenant_active_seats(tenant_id) >= seat_limit_for_plan(plan):
+        return (jsonify({"ok":False,"error":"Seat limit reached. Upgrade plan."}), 402)
+
+    data = request.get_json() or {}
+    email = data.get("email"); role = data.get("role","staff")
+    if not email: return ("email required", 400)
+
+    token, exp = generate_invite_token({"tenant_id":tenant_id,"email":email,"role":role})
+    inv = Invitation(id=str(uuid.uuid4()), tenant_id=tenant_id, email=email, role=role,
+                     token=token, expires_at=exp, inviter_user_id=user.id)
+    db.session.add(inv); db.session.commit()
+    link = request.host_url + "auth/accept?token=" + token
+    try:
+        send_email_smtp(email, "You're invited to SmartFlow", f"Join: {link}")
+    except Exception as e:
+        print("[invite email] error:", e)
+    log_action(tenant_id, user.id, "user.invited", "user", email, {"role":role})
+    return jsonify({"ok":True,"invite_link":link})
+
+@app.get("/auth/accept")
+def accept_invite():
+    token = request.args.get("token")
+    try:
+        data = signer.loads(token, max_age=60*30)  # 30 minutes
+    except SignatureExpired:
+        return "Invite expired", 410
+    except BadSignature:
+        return "Invalid token", 400
+
+    tenant_id = data["tenant_id"]; email = data["email"]; role = data["role"]
+    u = User.query.filter_by(email=email).first()
+    if not u:
+        u = User(id=email, email=email, name=email.split("@")[0])
+        db.session.add(u); db.session.commit()
+    m = Membership.query.filter_by(tenant_id=tenant_id, user_id=u.id).first()
+    if not m:
+        m = Membership(tenant_id=tenant_id, user_id=u.id, role=role,
+                       invited_at=datetime.utcnow(), activated_at=datetime.utcnow())
+        db.session.add(m); db.session.commit()
+    log_action(tenant_id, u.id, "user.invite.accepted", "user", u.id, {"role":role})
+    return "Invite accepted. You can close this page."
+
+@app.patch("/tenants/<tenant_id>/users/<user_id>")
+def change_role_or_suspend(tenant_id, user_id):
+    actor, tenant = get_current_user()
+    if tenant_id != tenant.id: return ("Forbidden", 403)
+    data = request.get_json() or {}
+    u = User.query.get(user_id)
+    if not u: return ("User not found", 404)
+    updates = {}
+    if "role" in data:
+        m = Membership.query.filter_by(tenant_id=tenant_id, user_id=user_id).first()
+        if not m: return ("Membership not found", 404)
+        old = m.role; m.role = data["role"]; db.session.commit()
+        updates["role_before"] = old; updates["role_after"] = m.role
+        log_action(tenant_id, actor.id, "user.role.changed", "user", user_id, updates)
+    if "status" in data:
+        old = u.status; u.status = data["status"]; db.session.commit()
+        updates["status_before"] = old; updates["status_after"] = u.status
+        log_action(tenant_id, actor.id, "user.status.changed", "user", user_id, updates)
+    return jsonify({"ok":True,"updates":updates})
+
+@app.get("/tenants/<tenant_id>/users")
+def list_users(tenant_id):
+    actor, tenant = get_current_user()
+    if tenant_id != tenant.id: return ("Forbidden", 403)
+    rows = (db.session.query(User, Membership)
+            .join(Membership, Membership.user_id==User.id)
+            .filter(Membership.tenant_id==tenant_id).all())
+    out = []
+    for u,m in rows:
+        out.append({"id":u.id,"email":u.email,"name":u.name,"status":u.status,"role":m.role})
+    return jsonify(out)
+-----
+
+G) (optional) runtime.txt — not required on Replit (skip)
+
+========================================
+2) REPLIT SECRETS — CREATE KEYS (placeholders ok)
+========================================
+Create these in the “lock” tab (I will fill values):
+- FLASK_SECRET_KEY
+- DEBUG="True"
+- STRIPE_SECRET_KEY
+- STRIPE_PUBLISHABLE_KEY
+- STRIPE_WEBHOOK_SECRET
+- STRIPE_PRICE_STARTER_MONTHLY
+- STRIPE_PRICE_FLOWKIT_MONTHLY
+- STRIPE_PRICE_LAUNCHPACK_MONTHLY
+- STRIPE_PRICE_STARTER_ONEOFF
+- STRIPE_PRICE_FLOWKIT_ONEOFF
+- STRIPE_PRICE_LAUNCHPACK_ONEOFF
+- SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM (optional)
+- TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER (optional)
+
+========================================
+3) GIT: INIT & CONNECT
+========================================
+- Open Git tab → Connect to GitHub (create private repo “smartflow-app” if none).
+- Commit with message: "SmartFlow: base app + pricing + checkout + webhook + user admin MVP".
+
+========================================
+4) RUN & VERIFY
+========================================
+- Install dependencies (requirements.txt).
+- Start app: python app.py (bind 0.0.0.0 on PORT env).
+- Open /  -> see landing.
+- Open /pricing -> buttons exist.
+- /feature/ai_concierge -> should be gated unless plan set.
+
+========================================
+5) STRIPE (TEST MODE) — DO IN DASHBOARD, THEN SET SECRETS
+========================================
+- Create 3 Products with 6 Prices (GBP):
+  Starter £49/mo & £399 one-off
+  Flow Kit £149/mo & £999 one-off
+  Launch Pack £299/mo & £1,999 one-off
+- Copy price IDs into the corresponding secrets.
+- Add webhook endpoint: https://<your-repl-host>/webhooks/stripe
+  Events: checkout.session.completed, invoice.payment_succeeded, customer.subscription.deleted
+  Copy signing secret -> STRIPE_WEBHOOK_SECRET
+- Test card: 4242 4242 4242 4242 (any future expiry, any CVC, UK postcode)
+
+========================================
+6) SUCCESS CHECK
+========================================
+- Run a test checkout from /pricing.
+- After Stripe redirects to /success, webhook should set plan (audit "plan_set").
+- Now /feature/ai_concierge should return {"ok":true,...} only if plan == "launchpack".
+- Invite flow test:
+  POST /tenants/demo-tenant/invites { "email":"test@example.com", "role":"staff" }
+  → Accept via link in JSON or email (if SMTP set).
+
+========================================
+7) OUTPUT
+========================================
+- Print: live URL, /pricing URL, and reminders for which secrets still missing.
+DONE.
