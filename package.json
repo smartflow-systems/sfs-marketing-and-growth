@@ -12,7 +12,12 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "sync": "bash scripts/auto-sync.sh",
+    "auto-commit": "git add . && git commit -m 'chore: auto-commit [Auto-Sync]' || true",
+    "pull": "git pull --no-edit",
+    "push": "git push",
+    "sync-all": "npm run auto-commit && npm run sync"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
