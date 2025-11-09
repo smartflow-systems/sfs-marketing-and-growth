@@ -650,6 +650,97 @@ def generate_ai_email():
         logger.error(f"AI email generation error: {e}", exc_info=True)
         return {"error": f"Generation failed: {str(e)}"}, 500
 
+# Social Media Scheduling API endpoints
+@app.route("/api/social/post", methods=["POST"])
+def post_to_social():
+    """Post immediately to social media platform"""
+    from social_media_scheduler import get_social_scheduler
+
+    data = request.get_json() or {}
+    platform = data.get("platform")
+    content = data.get("content", "").strip()
+    media_urls = data.get("media_urls", [])
+
+    if not platform or platform not in ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'TikTok']:
+        return {"error": "Invalid platform"}, 400
+
+    if not content:
+        return {"error": "Content is required"}, 400
+
+    try:
+        scheduler = get_social_scheduler()
+        result = scheduler.post_immediately(platform, content, media_urls)
+
+        return {
+            "ok": result.get("success", False),
+            "result": result
+        }
+
+    except Exception as e:
+        logger.error(f"Social media post error: {e}", exc_info=True)
+        return {"error": f"Post failed: {str(e)}"}, 500
+
+@app.route("/api/social/schedule", methods=["POST"])
+def schedule_social_post():
+    """Schedule a post for later"""
+    from social_media_scheduler import get_social_scheduler
+    from datetime import datetime
+
+    user, tenant = get_current_user()
+
+    data = request.get_json() or {}
+    platform = data.get("platform")
+    content = data.get("content", "").strip()
+    media_urls = data.get("media_urls", [])
+    scheduled_at_iso = data.get("scheduled_at")
+
+    if not all([platform, content, scheduled_at_iso]):
+        return {"error": "Platform, content, and scheduled_at are required"}, 400
+
+    try:
+        scheduled_at = datetime.fromisoformat(scheduled_at_iso.replace("Z", "+00:00")).replace(tzinfo=None)
+    except Exception:
+        return {"error": "Invalid scheduled_at format. Use ISO 8601"}, 400
+
+    try:
+        scheduler = get_social_scheduler(db.session)
+        post = scheduler.schedule_post(
+            tenant_id=tenant.id,
+            platform=platform,
+            content=content,
+            media_urls=media_urls,
+            scheduled_at=scheduled_at
+        )
+
+        return {
+            "ok": True,
+            "post": {
+                "id": post.id,
+                "platform": post.platform,
+                "status": post.status,
+                "scheduled_at": post.scheduled_at.isoformat() + "Z"
+            }
+        }
+
+    except Exception as e:
+        logger.error(f"Social media schedule error: {e}", exc_info=True)
+        return {"error": f"Schedule failed: {str(e)}"}, 500
+
+@app.route("/api/social/platforms/status", methods=["GET"])
+def social_platforms_status():
+    """Check which social media platforms are configured"""
+    from social_media_scheduler import SocialMediaAPI
+
+    api = SocialMediaAPI()
+
+    return {
+        "twitter": api.twitter_api is not None,
+        "facebook": api.meta_access_token is not None,
+        "instagram": api.meta_access_token is not None and os.environ.get("INSTAGRAM_ACCOUNT_ID") is not None,
+        "linkedin": api.linkedin_access_token is not None,
+        "tiktok": False  # Not yet implemented
+    }
+
 def _send_booking_reminders():
     """Background job to send booking reminders"""
     with app.app_context():
