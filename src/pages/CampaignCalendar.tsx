@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Calendar, dateFnsLocalizer, View } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { Calendar as CalendarIcon, Plus, Edit, Trash2, Link2, FileText } from 'lucide-react';
+import { Calendar as CalendarIcon, Edit, Trash2, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 
@@ -35,7 +35,7 @@ interface CalendarEvent {
 }
 
 export default function CampaignCalendar() {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<number | null>(null);
