@@ -17,9 +17,11 @@ const EmailCampaignBuilder = lazy(() => import('./pages/tools/EmailCampaignBuild
 const CampaignCalendar = lazy(() => import('./pages/tools/CampaignCalendar'))
 const OGImageGenerator = lazy(() => import('./pages/tools/OGImageGenerator'))
 const SEOToolkit = lazy(() => import('./pages/tools/SEOToolkit'))
+const ABTesting = lazy(() => import('./pages/tools/ABTesting'))
 
 // Analytics & Admin
 const Analytics = lazy(() => import('./pages/Analytics'))
+const CustomerJourney = lazy(() => import('./pages/CustomerJourney'))
 
 // Loading fallback component
 function LoadingFallback() {
@@ -56,6 +58,7 @@ function App() {
 
             {/* Analytics */}
             <Route path="analytics" element={<Analytics />} />
+            <Route path="customer-journey" element={<CustomerJourney />} />
 
             {/* Growth Tools */}
             <Route path="tools">
@@ -66,6 +69,7 @@ function App() {
               <Route path="campaign-calendar" element={<CampaignCalendar />} />
               <Route path="og-image-generator" element={<OGImageGenerator />} />
               <Route path="seo" element={<SEOToolkit />} />
+              <Route path="ab-testing" element={<ABTesting />} />
             </Route>
           </Route>
         </Routes>
