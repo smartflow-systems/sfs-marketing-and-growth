@@ -2,6 +2,8 @@ name: Test SFS_PAT
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
 jobs:
   test-token:
     runs-on: ubuntu-latest
