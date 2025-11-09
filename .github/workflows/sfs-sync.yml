@@ -4,6 +4,10 @@ on:
     branches: [ "**" ]
   pull_request:
     types: [opened, synchronize, reopened]
+
+# Security: Explicitly set minimal permissions
+permissions: {}
+
 jobs:
   ping:
     runs-on: ubuntu-latest
