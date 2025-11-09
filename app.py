@@ -619,4 +619,8 @@ def add_no_cache(resp):
     resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     resp.headers["Pragma"] = "no-cache"
     resp.headers["Expires"] = "0"
+
+    # Security: Configure CORS with allowed origins from environment
+    allowed_origin = os.getenv("CORS_ORIGIN", "http://localhost:3000")
+    resp.headers.setdefault("Access-Control-Allow-Origin", allowed_origin)
     return resp
