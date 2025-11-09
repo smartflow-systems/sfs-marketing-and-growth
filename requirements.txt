@@ -62,3 +62,8 @@ sentry-sdk==1.38.0
 
 # Redis for caching
 redis==5.0.1
+apscheduler
+flask
+flask-sqlalchemy
+itsdangerous
+werkzeug
