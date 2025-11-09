@@ -33,17 +33,56 @@ export default function AIPostGenerator() {
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState<string | null>(null)
 
-  // Simulated AI generation (in production, this would call an OpenAI/Anthropic API)
+  // Real AI generation using backend API
   const generatePost = async () => {
     if (!topic) return
 
     setLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 2000)) // Simulate API call
 
-    // Generate mock posts based on inputs
+    try {
+      const response = await fetch('/api/ai/generate-posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          topic,
+          niche,
+          platform,
+          tone,
+          num_variations: 3,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate posts')
+      }
+
+      const data = await response.json()
+
+      if (data.ok && data.posts) {
+        const posts: GeneratedPost[] = data.posts.map((post: any) => ({
+          caption: post.caption,
+          hashtags: post.hashtags,
+          platform: post.platform,
+        }))
+        setGeneratedPosts(posts)
+      } else {
+        throw new Error(data.error || 'Failed to generate posts')
+      }
+    } catch (error) {
+      console.error('AI generation error:', error)
+      // Fallback to mock data on error
+      setGeneratedPosts(generateMockPosts())
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Fallback mock generation
+  const generateMockPosts = (): GeneratedPost[] => {
     const posts: GeneratedPost[] = []
 
-    // Example generations
     if (platform === 'Instagram') {
       posts.push({
         caption: `${topic}\n\nWe're excited to share this with our community! 🚀\n\nWhat are your thoughts? Drop a comment below! 👇`,
@@ -64,7 +103,6 @@ export default function AIPostGenerator() {
       })
     }
 
-    // Add 2 more variations
     posts.push({
       caption: generateVariation(topic, platform, tone, 1),
       hashtags: generateHashtags(niche, platform),
@@ -77,8 +115,7 @@ export default function AIPostGenerator() {
       platform,
     })
 
-    setGeneratedPosts(posts)
-    setLoading(false)
+    return posts
   }
 
   const generateHashtags = (niche: string, platform: string): string[] => {

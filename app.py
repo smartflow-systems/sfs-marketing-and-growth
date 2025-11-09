@@ -551,6 +551,105 @@ def notification_settings():
         <a href="/admin">Back to Admin</a>
         """
 
+# AI Content Generation API endpoints
+@app.route("/api/ai/status", methods=["GET"])
+def ai_status():
+    """Check if AI services are available"""
+    from ai_service import get_ai_generator
+    generator = get_ai_generator()
+    return {
+        "available": generator.is_available(),
+        "provider": os.environ.get("AI_PROVIDER", "anthropic"),
+        "has_openai": generator.openai_client is not None,
+        "has_anthropic": generator.anthropic_client is not None
+    }
+
+@app.route("/api/ai/generate-posts", methods=["POST"])
+def generate_ai_posts():
+    """Generate social media posts using AI"""
+    from ai_service import get_ai_generator
+
+    data = request.get_json() or {}
+    topic = data.get("topic", "").strip()
+    niche = data.get("niche", "Tech & SaaS")
+    platform = data.get("platform", "Instagram")
+    tone = data.get("tone", "Professional")
+    num_variations = int(data.get("num_variations", 3))
+
+    # Validation
+    if not topic:
+        return {"error": "Topic is required"}, 400
+
+    if platform not in ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'TikTok']:
+        return {"error": "Invalid platform"}, 400
+
+    if tone not in ['Professional', 'Casual', 'Funny', 'Inspirational', 'Educational']:
+        return {"error": "Invalid tone"}, 400
+
+    try:
+        generator = get_ai_generator()
+        posts = generator.generate_social_posts(
+            topic=topic,
+            niche=niche,
+            platform=platform,
+            tone=tone,
+            num_variations=min(num_variations, 5)  # Max 5 variations
+        )
+
+        # Convert to JSON-serializable format
+        posts_data = [
+            {
+                "caption": post.caption,
+                "hashtags": post.hashtags,
+                "platform": post.platform,
+                "variation_number": post.variation_number
+            }
+            for post in posts
+        ]
+
+        return {
+            "ok": True,
+            "posts": posts_data,
+            "is_ai_generated": generator.is_available()
+        }
+
+    except Exception as e:
+        logger.error(f"AI post generation error: {e}", exc_info=True)
+        return {"error": f"Generation failed: {str(e)}"}, 500
+
+@app.route("/api/ai/generate-email", methods=["POST"])
+def generate_ai_email():
+    """Generate email campaign content using AI"""
+    from ai_service import get_ai_generator
+
+    data = request.get_json() or {}
+    subject = data.get("subject", "").strip()
+    audience = data.get("audience", "customers")
+    goal = data.get("goal", "engagement")
+    tone = data.get("tone", "Professional")
+
+    if not subject:
+        return {"error": "Subject is required"}, 400
+
+    try:
+        generator = get_ai_generator()
+        email_content = generator.generate_email_content(
+            subject=subject,
+            audience=audience,
+            goal=goal,
+            tone=tone
+        )
+
+        return {
+            "ok": True,
+            "email": email_content,
+            "is_ai_generated": generator.is_available()
+        }
+
+    except Exception as e:
+        logger.error(f"AI email generation error: {e}", exc_info=True)
+        return {"error": f"Generation failed: {str(e)}"}, 500
+
 def _send_booking_reminders():
     """Background job to send booking reminders"""
     with app.app_context():
