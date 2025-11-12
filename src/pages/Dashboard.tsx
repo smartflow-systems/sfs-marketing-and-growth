@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Link2, Sparkles, Calendar, Image, QrCode, TrendingUp, ArrowRight, Zap } from 'lucide-react'
+import { Link2, Sparkles, Calendar, Image, QrCode, TrendingUp, ArrowRight, Zap, Mail, Search, TestTube, Map } from 'lucide-react'
 import GitHubSidebar from '../components/Dashboard/GitHubSidebar'
 
 const tools = [
@@ -42,9 +42,36 @@ const tools = [
     icon: TrendingUp,
     title: 'Analytics',
     description: 'Track your growth metrics',
-    path: '#',
+    path: '/analytics',
     color: '#E6C200',
-    comingSoon: true,
+  },
+  {
+    icon: Mail,
+    title: 'Email Campaigns',
+    description: 'Build powerful email campaigns',
+    path: '/tools/email-campaigns',
+    color: '#FFD700',
+  },
+  {
+    icon: Search,
+    title: 'SEO Toolkit',
+    description: 'Optimize your search rankings',
+    path: '/tools/seo',
+    color: '#E6C200',
+  },
+  {
+    icon: TestTube,
+    title: 'A/B Testing',
+    description: 'Experiment and optimize',
+    path: '/tools/ab-testing',
+    color: '#FFD700',
+  },
+  {
+    icon: Map,
+    title: 'Customer Journey',
+    description: 'Visualize conversion funnels',
+    path: '/customer-journey',
+    color: '#E6C200',
   },
 ]
 
