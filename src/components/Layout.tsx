@@ -4,9 +4,9 @@ import { useState } from 'react'
 
 const navigation = [
   { name: 'Home', path: '/' },
-  { name: 'Tools', path: '#tools' },
+  { name: 'Tools', path: '/dashboard' },
   { name: 'Pricing', path: '/pricing' },
-  { name: 'Dashboard', path: '/dashboard' },
+  { name: 'Analytics', path: '/analytics' },
 ]
 
 export default function Layout() {

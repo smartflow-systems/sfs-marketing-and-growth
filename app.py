@@ -11,6 +11,8 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
 import stripe
 from apscheduler.schedulers.background import BackgroundScheduler
+from flask_socketio import SocketIO
+from flask_cors import CORS
 
 from config import Config, FEATURES_BY_PLAN, PLAN_DETAILS
 
@@ -44,6 +46,22 @@ db.init_app(app)
 
 # Initialize Stripe
 stripe.api_key = Config.STRIPE_SECRET_KEY
+
+# Initialize CORS for WebSocket support
+CORS(app, resources={r"/socket.io/*": {"origins": "*"}})
+
+# Initialize SocketIO for real-time features
+socketio = SocketIO(
+    app,
+    cors_allowed_origins="*",
+    async_mode='threading',
+    logger=True,
+    engineio_logger=False
+)
+
+# Initialize WebSocket manager
+from websocket_manager import init_websocket_manager
+websocket_manager = init_websocket_manager(socketio)
 
 # Token serializer for invitations
 signer = URLSafeTimedSerializer(app.secret_key)
@@ -617,6 +635,635 @@ def notification_settings():
         <a href="/admin">Back to Admin</a>
         """
 
+# AI Content Generation API endpoints
+@app.route("/api/ai/status", methods=["GET"])
+def ai_status():
+    """Check if AI services are available"""
+    from ai_service import get_ai_generator
+    generator = get_ai_generator()
+    return {
+        "available": generator.is_available(),
+        "provider": os.environ.get("AI_PROVIDER", "anthropic"),
+        "has_openai": generator.openai_client is not None,
+        "has_anthropic": generator.anthropic_client is not None
+    }
+
+@app.route("/api/ai/generate-posts", methods=["POST"])
+def generate_ai_posts():
+    """Generate social media posts using AI"""
+    from ai_service import get_ai_generator
+
+    data = request.get_json() or {}
+    topic = data.get("topic", "").strip()
+    niche = data.get("niche", "Tech & SaaS")
+    platform = data.get("platform", "Instagram")
+    tone = data.get("tone", "Professional")
+    num_variations = int(data.get("num_variations", 3))
+
+    # Validation
+    if not topic:
+        return {"error": "Topic is required"}, 400
+
+    if platform not in ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'TikTok']:
+        return {"error": "Invalid platform"}, 400
+
+    if tone not in ['Professional', 'Casual', 'Funny', 'Inspirational', 'Educational']:
+        return {"error": "Invalid tone"}, 400
+
+    try:
+        generator = get_ai_generator()
+        posts = generator.generate_social_posts(
+            topic=topic,
+            niche=niche,
+            platform=platform,
+            tone=tone,
+            num_variations=min(num_variations, 5)  # Max 5 variations
+        )
+
+        # Convert to JSON-serializable format
+        posts_data = [
+            {
+                "caption": post.caption,
+                "hashtags": post.hashtags,
+                "platform": post.platform,
+                "variation_number": post.variation_number
+            }
+            for post in posts
+        ]
+
+        return {
+            "ok": True,
+            "posts": posts_data,
+            "is_ai_generated": generator.is_available()
+        }
+
+    except Exception as e:
+        logger.error(f"AI post generation error: {e}", exc_info=True)
+        return {"error": f"Generation failed: {str(e)}"}, 500
+
+@app.route("/api/ai/generate-email", methods=["POST"])
+def generate_ai_email():
+    """Generate email campaign content using AI"""
+    from ai_service import get_ai_generator
+
+    data = request.get_json() or {}
+    subject = data.get("subject", "").strip()
+    audience = data.get("audience", "customers")
+    goal = data.get("goal", "engagement")
+    tone = data.get("tone", "Professional")
+
+    if not subject:
+        return {"error": "Subject is required"}, 400
+
+    try:
+        generator = get_ai_generator()
+        email_content = generator.generate_email_content(
+            subject=subject,
+            audience=audience,
+            goal=goal,
+            tone=tone
+        )
+
+        return {
+            "ok": True,
+            "email": email_content,
+            "is_ai_generated": generator.is_available()
+        }
+
+    except Exception as e:
+        logger.error(f"AI email generation error: {e}", exc_info=True)
+        return {"error": f"Generation failed: {str(e)}"}, 500
+
+# Social Media Scheduling API endpoints
+@app.route("/api/social/post", methods=["POST"])
+def post_to_social():
+    """Post immediately to social media platform"""
+    from social_media_scheduler import get_social_scheduler
+
+    data = request.get_json() or {}
+    platform = data.get("platform")
+    content = data.get("content", "").strip()
+    media_urls = data.get("media_urls", [])
+
+    if not platform or platform not in ['Instagram', 'Twitter', 'LinkedIn', 'Facebook', 'TikTok']:
+        return {"error": "Invalid platform"}, 400
+
+    if not content:
+        return {"error": "Content is required"}, 400
+
+    try:
+        scheduler = get_social_scheduler()
+        result = scheduler.post_immediately(platform, content, media_urls)
+
+        return {
+            "ok": result.get("success", False),
+            "result": result
+        }
+
+    except Exception as e:
+        logger.error(f"Social media post error: {e}", exc_info=True)
+        return {"error": f"Post failed: {str(e)}"}, 500
+
+@app.route("/api/social/schedule", methods=["POST"])
+def schedule_social_post():
+    """Schedule a post for later"""
+    from social_media_scheduler import get_social_scheduler
+    from datetime import datetime
+
+    user, tenant = get_current_user()
+
+    data = request.get_json() or {}
+    platform = data.get("platform")
+    content = data.get("content", "").strip()
+    media_urls = data.get("media_urls", [])
+    scheduled_at_iso = data.get("scheduled_at")
+
+    if not all([platform, content, scheduled_at_iso]):
+        return {"error": "Platform, content, and scheduled_at are required"}, 400
+
+    try:
+        scheduled_at = datetime.fromisoformat(scheduled_at_iso.replace("Z", "+00:00")).replace(tzinfo=None)
+    except Exception:
+        return {"error": "Invalid scheduled_at format. Use ISO 8601"}, 400
+
+    try:
+        scheduler = get_social_scheduler(db.session)
+        post = scheduler.schedule_post(
+            tenant_id=tenant.id,
+            platform=platform,
+            content=content,
+            media_urls=media_urls,
+            scheduled_at=scheduled_at
+        )
+
+        return {
+            "ok": True,
+            "post": {
+                "id": post.id,
+                "platform": post.platform,
+                "status": post.status,
+                "scheduled_at": post.scheduled_at.isoformat() + "Z"
+            }
+        }
+
+    except Exception as e:
+        logger.error(f"Social media schedule error: {e}", exc_info=True)
+        return {"error": f"Schedule failed: {str(e)}"}, 500
+
+@app.route("/api/social/platforms/status", methods=["GET"])
+def social_platforms_status():
+    """Check which social media platforms are configured"""
+    from social_media_scheduler import SocialMediaAPI
+
+    api = SocialMediaAPI()
+
+    return {
+        "twitter": api.twitter_api is not None,
+        "facebook": api.meta_access_token is not None,
+        "instagram": api.meta_access_token is not None and os.environ.get("INSTAGRAM_ACCOUNT_ID") is not None,
+        "linkedin": api.linkedin_access_token is not None,
+        "tiktok": False  # Not yet implemented
+    }
+
+# A/B Testing API endpoints
+@app.route("/api/experiments", methods=["POST"])
+def create_experiment():
+    """Create a new A/B test experiment"""
+    from ab_testing import get_ab_testing_manager, ExperimentType
+
+    data = request.get_json() or {}
+    name = data.get("name", "").strip()
+    description = data.get("description", "").strip()
+    experiment_type = data.get("type", "custom")
+    variant_names = data.get("variant_names", [])
+    variant_descriptions = data.get("variant_descriptions", [])
+    traffic_allocation = data.get("traffic_allocation")
+    minimum_sample_size = data.get("minimum_sample_size", 100)
+    confidence_level = data.get("confidence_level", 0.95)
+
+    if not name:
+        return {"error": "Experiment name is required"}, 400
+
+    if len(variant_names) < 2:
+        return {"error": "At least 2 variants required"}, 400
+
+    if len(variant_names) != len(variant_descriptions):
+        return {"error": "Variant names and descriptions must match"}, 400
+
+    try:
+        manager = get_ab_testing_manager()
+        experiment = manager.create_experiment(
+            name=name,
+            description=description,
+            experiment_type=ExperimentType(experiment_type),
+            variant_names=variant_names,
+            variant_descriptions=variant_descriptions,
+            traffic_allocation=traffic_allocation,
+            minimum_sample_size=minimum_sample_size,
+            confidence_level=confidence_level
+        )
+
+        return {
+            "ok": True,
+            "experiment": experiment.to_dict()
+        }
+
+    except Exception as e:
+        logger.error(f"Create experiment error: {e}", exc_info=True)
+        return {"error": f"Failed to create experiment: {str(e)}"}, 500
+
+@app.route("/api/experiments", methods=["GET"])
+def list_experiments():
+    """List all experiments, optionally filtered by status"""
+    from ab_testing import get_ab_testing_manager, ExperimentStatus
+
+    status_param = request.args.get("status")
+    status_filter = ExperimentStatus(status_param) if status_param else None
+
+    try:
+        manager = get_ab_testing_manager()
+        experiments = manager.list_experiments(status=status_filter)
+
+        return {
+            "ok": True,
+            "experiments": [exp.to_dict() for exp in experiments]
+        }
+
+    except Exception as e:
+        logger.error(f"List experiments error: {e}", exc_info=True)
+        return {"error": f"Failed to list experiments: {str(e)}"}, 500
+
+@app.route("/api/experiments/<experiment_id>", methods=["GET"])
+def get_experiment(experiment_id):
+    """Get a specific experiment by ID"""
+    from ab_testing import get_ab_testing_manager
+
+    try:
+        manager = get_ab_testing_manager()
+        experiment = manager.get_experiment(experiment_id)
+
+        return {
+            "ok": True,
+            "experiment": experiment.to_dict()
+        }
+
+    except ValueError as e:
+        return {"error": str(e)}, 404
+    except Exception as e:
+        logger.error(f"Get experiment error: {e}", exc_info=True)
+        return {"error": f"Failed to get experiment: {str(e)}"}, 500
+
+@app.route("/api/experiments/<experiment_id>/start", methods=["POST"])
+def start_experiment(experiment_id):
+    """Start running an experiment"""
+    from ab_testing import get_ab_testing_manager
+
+    try:
+        manager = get_ab_testing_manager()
+        experiment = manager.start_experiment(experiment_id)
+
+        return {
+            "ok": True,
+            "experiment": experiment.to_dict()
+        }
+
+    except ValueError as e:
+        return {"error": str(e)}, 404
+    except Exception as e:
+        logger.error(f"Start experiment error: {e}", exc_info=True)
+        return {"error": f"Failed to start experiment: {str(e)}"}, 500
+
+@app.route("/api/experiments/<experiment_id>/pause", methods=["POST"])
+def pause_experiment(experiment_id):
+    """Pause a running experiment"""
+    from ab_testing import get_ab_testing_manager
+
+    try:
+        manager = get_ab_testing_manager()
+        experiment = manager.pause_experiment(experiment_id)
+
+        return {
+            "ok": True,
+            "experiment": experiment.to_dict()
+        }
+
+    except ValueError as e:
+        return {"error": str(e)}, 404
+    except Exception as e:
+        logger.error(f"Pause experiment error: {e}", exc_info=True)
+        return {"error": f"Failed to pause experiment: {str(e)}"}, 500
+
+@app.route("/api/experiments/<experiment_id>/complete", methods=["POST"])
+def complete_experiment(experiment_id):
+    """Complete an experiment and determine winner"""
+    from ab_testing import get_ab_testing_manager
+
+    try:
+        manager = get_ab_testing_manager()
+        experiment = manager.complete_experiment(experiment_id)
+
+        return {
+            "ok": True,
+            "experiment": experiment.to_dict()
+        }
+
+    except ValueError as e:
+        return {"error": str(e)}, 404
+    except Exception as e:
+        logger.error(f"Complete experiment error: {e}", exc_info=True)
+        return {"error": f"Failed to complete experiment: {str(e)}"}, 500
+
+@app.route("/api/experiments/<experiment_id>/results", methods=["GET"])
+def get_experiment_results(experiment_id):
+    """Get detailed results and analysis for an experiment"""
+    from ab_testing import get_ab_testing_manager
+
+    try:
+        manager = get_ab_testing_manager()
+        results = manager.get_results(experiment_id)
+
+        return {
+            "ok": True,
+            **results
+        }
+
+    except ValueError as e:
+        return {"error": str(e)}, 404
+    except Exception as e:
+        logger.error(f"Get results error: {e}", exc_info=True)
+        return {"error": f"Failed to get results: {str(e)}"}, 500
+
+@app.route("/api/experiments/<experiment_id>/impression", methods=["POST"])
+def record_impression(experiment_id):
+    """Record an impression (visitor saw a variant)"""
+    from ab_testing import get_ab_testing_manager
+
+    data = request.get_json() or {}
+    variant_id = data.get("variant_id")
+
+    if not variant_id:
+        return {"error": "variant_id is required"}, 400
+
+    try:
+        manager = get_ab_testing_manager()
+        manager.record_impression(experiment_id, variant_id)
+
+        return {"ok": True}
+
+    except ValueError as e:
+        return {"error": str(e)}, 404
+    except Exception as e:
+        logger.error(f"Record impression error: {e}", exc_info=True)
+        return {"error": f"Failed to record impression: {str(e)}"}, 500
+
+@app.route("/api/experiments/<experiment_id>/conversion", methods=["POST"])
+def record_conversion(experiment_id):
+    """Record a conversion for a variant"""
+    from ab_testing import get_ab_testing_manager
+
+    data = request.get_json() or {}
+    variant_id = data.get("variant_id")
+    revenue = data.get("revenue", 0.0)
+
+    if not variant_id:
+        return {"error": "variant_id is required"}, 400
+
+    try:
+        manager = get_ab_testing_manager()
+        manager.record_conversion(experiment_id, variant_id, revenue)
+
+        return {"ok": True}
+
+    except ValueError as e:
+        return {"error": str(e)}, 404
+    except Exception as e:
+        logger.error(f"Record conversion error: {e}", exc_info=True)
+        return {"error": f"Failed to record conversion: {str(e)}"}, 500
+
+# Google Calendar OAuth API endpoints
+@app.route("/api/calendar/authorize", methods=["GET"])
+def google_calendar_authorize():
+    """Initiate Google Calendar OAuth flow"""
+    try:
+        from google_calendar import get_calendar_manager
+        import secrets
+
+        user, tenant = get_current_user()
+
+        # Generate CSRF state token
+        state = secrets.token_urlsafe(32)
+        session['oauth_state'] = state
+        session['oauth_user_id'] = user.id
+
+        manager = get_calendar_manager()
+        if not manager:
+            return {"error": "Google Calendar not configured"}, 500
+
+        auth_url = manager.get_authorization_url(state)
+
+        return {
+            "ok": True,
+            "authorization_url": auth_url
+        }
+
+    except ImportError:
+        return {"error": "Google Calendar dependencies not installed"}, 500
+    except Exception as e:
+        logger.error(f"Calendar auth error: {e}", exc_info=True)
+        return {"error": f"Authorization failed: {str(e)}"}, 500
+
+@app.route("/oauth/google/callback", methods=["GET"])
+def google_calendar_callback():
+    """Handle Google OAuth callback"""
+    try:
+        from google_calendar import get_calendar_manager
+
+        # Verify state token
+        state = request.args.get('state')
+        stored_state = session.get('oauth_state')
+        user_id = session.get('oauth_user_id')
+
+        if not state or state != stored_state:
+            return {"error": "Invalid state token"}, 400
+
+        if not user_id:
+            return {"error": "No user in session"}, 400
+
+        # Get authorization code
+        code = request.args.get('code')
+        if not code:
+            error = request.args.get('error')
+            return {"error": f"Authorization failed: {error}"}, 400
+
+        # Exchange code for tokens
+        manager = get_calendar_manager()
+        if not manager:
+            return {"error": "Google Calendar not configured"}, 500
+
+        credentials = manager.handle_oauth_callback(code, user_id)
+
+        # Clear session
+        session.pop('oauth_state', None)
+        session.pop('oauth_user_id', None)
+
+        # Redirect to success page
+        return redirect(url_for('dashboard') + '?calendar_connected=true')
+
+    except ImportError:
+        return {"error": "Google Calendar dependencies not installed"}, 500
+    except Exception as e:
+        logger.error(f"Calendar callback error: {e}", exc_info=True)
+        return {"error": f"Callback failed: {str(e)}"}, 500
+
+@app.route("/api/calendar/status", methods=["GET"])
+def google_calendar_status():
+    """Check if user has connected Google Calendar"""
+    try:
+        from google_calendar import get_calendar_manager
+
+        user, tenant = get_current_user()
+
+        manager = get_calendar_manager()
+        if not manager:
+            return {"ok": True, "connected": False, "available": False}
+
+        credentials = manager.get_credentials(user.id)
+
+        return {
+            "ok": True,
+            "connected": credentials is not None,
+            "available": True
+        }
+
+    except ImportError:
+        return {"ok": True, "connected": False, "available": False}
+    except Exception as e:
+        logger.error(f"Calendar status error: {e}", exc_info=True)
+        return {"error": f"Status check failed: {str(e)}"}, 500
+
+@app.route("/api/calendar/disconnect", methods=["POST"])
+def google_calendar_disconnect():
+    """Disconnect Google Calendar"""
+    try:
+        from google_calendar import get_calendar_manager
+
+        user, tenant = get_current_user()
+
+        manager = get_calendar_manager()
+        if manager:
+            manager.revoke_access(user.id)
+
+        return {"ok": True}
+
+    except ImportError:
+        return {"error": "Google Calendar dependencies not installed"}, 500
+    except Exception as e:
+        logger.error(f"Calendar disconnect error: {e}", exc_info=True)
+        return {"error": f"Disconnect failed: {str(e)}"}, 500
+
+@app.route("/api/calendar/events", methods=["GET"])
+def list_calendar_events():
+    """List Google Calendar events"""
+    from google_calendar import get_calendar_manager
+    from datetime import datetime, timedelta
+
+    try:
+        user, tenant = get_current_user()
+
+        manager = get_calendar_manager()
+        if not manager:
+            return {"error": "Google Calendar not configured"}, 500
+
+        # Get time range from query params
+        days_ahead = int(request.args.get('days_ahead', 30))
+        start_time = datetime.utcnow()
+        end_time = start_time + timedelta(days=days_ahead)
+
+        events = manager.list_events(
+            user_id=user.id,
+            start_time=start_time,
+            end_time=end_time
+        )
+
+        return {
+            "ok": True,
+            "events": [
+                {
+                    "id": event.id,
+                    "summary": event.summary,
+                    "description": event.description,
+                    "start": event.start.isoformat(),
+                    "end": event.end.isoformat(),
+                    "attendees": event.attendees,
+                    "location": event.location,
+                    "status": event.status
+                }
+                for event in events
+            ]
+        }
+
+    except ImportError:
+        return {"error": "Google Calendar dependencies not installed"}, 500
+    except Exception as e:
+        logger.error(f"List events error: {e}", exc_info=True)
+        return {"error": f"Failed to list events: {str(e)}"}, 500
+
+@app.route("/api/calendar/events", methods=["POST"])
+def create_calendar_event():
+    """Create Google Calendar event"""
+    from google_calendar import get_calendar_manager
+    from datetime import datetime
+
+    try:
+        user, tenant = get_current_user()
+
+        data = request.get_json() or {}
+        summary = data.get("summary", "").strip()
+        start_iso = data.get("start")
+        end_iso = data.get("end")
+        description = data.get("description", "")
+        attendees = data.get("attendees", [])
+        location = data.get("location")
+
+        if not summary or not start_iso or not end_iso:
+            return {"error": "summary, start, and end are required"}, 400
+
+        # Parse datetimes
+        start = datetime.fromisoformat(start_iso.replace("Z", "+00:00")).replace(tzinfo=None)
+        end = datetime.fromisoformat(end_iso.replace("Z", "+00:00")).replace(tzinfo=None)
+
+        manager = get_calendar_manager()
+        if not manager:
+            return {"error": "Google Calendar not configured"}, 500
+
+        event = manager.create_event(
+            user_id=user.id,
+            summary=summary,
+            start=start,
+            end=end,
+            description=description,
+            attendees=attendees,
+            location=location
+        )
+
+        if not event:
+            return {"error": "Failed to create event"}, 500
+
+        return {
+            "ok": True,
+            "event": {
+                "id": event.id,
+                "summary": event.summary,
+                "start": event.start.isoformat(),
+                "end": event.end.isoformat()
+            }
+        }
+
+    except ImportError:
+        return {"error": "Google Calendar dependencies not installed"}, 500
+    except Exception as e:
+        logger.error(f"Create event error: {e}", exc_info=True)
+        return {"error": f"Failed to create event: {str(e)}"}, 500
 
 def _send_booking_reminders():
     """Background job to send booking reminders"""
