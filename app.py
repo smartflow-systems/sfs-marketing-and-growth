@@ -620,3 +620,14 @@ def add_no_cache(resp):
     resp.headers["Pragma"] = "no-cache"
     resp.headers["Expires"] = "0"
     return resp
+
+
+# ---- DB init at startup (non-fatal if DB down) ----
+def init_db():
+    from sqlalchemy.exc import OperationalError
+    with app.app_context():
+        try:
+            db.create_all()
+            app.logger.info("DB ready ✅ using %s", Config.SQLALCHEMY_DATABASE_URI)
+        except OperationalError as e:
+            app.logger.warning("DB unavailable, running degraded: %s", e)
