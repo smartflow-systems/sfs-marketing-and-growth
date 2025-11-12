@@ -1,0 +1,401 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* SFS Theme - CSS Variables */
+:root {
+  /* Brand Colors */
+  --brown-900: #4B2E2E;
+  --black-900: #0A0A0A;
+  --gold-100: #FFF7CC;
+  --gold-300: #FFE58A;
+  --gold-500: #FFD700;
+  --gold-600: #E6C200;
+  --gold-700: #B58E00;
+  --gold-800: #7A5A00;
+
+  /* Gold Gradient */
+  --gold-gradient: linear-gradient(90deg, #7a5a00 0%, #b58e00 16%, #ffd700 33%, #fff1a6 45%, #e6c200 55%, #b58e00 72%, #7a5a00 100%);
+
+  /* Semantic Colors */
+  --background: #4B2E2E;
+  --foreground: #FFF7CC;
+  --card: #121212;
+  --card-foreground: #FFF7CC;
+  --popover: #0A0A0A;
+  --popover-foreground: #FFF7CC;
+  --primary: #FFD700;
+  --primary-foreground: #0A0A0A;
+  --secondary: #0A0A0A;
+  --secondary-foreground: #FFF7CC;
+  --muted: #121212;
+  --muted-foreground: #FFE58A;
+  --accent: #B58E00;
+  --accent-foreground: #0A0A0A;
+  --destructive: #ef4444;
+  --destructive-foreground: #FFF7CC;
+  --border: #7A5A00;
+  --input: #121212;
+  --ring: #E6C200;
+  --radius: 0.6rem;
+
+  /* Chart Colors */
+  --chart-1: #FFD700;
+  --chart-2: #B58E00;
+  --chart-3: #E6C200;
+  --chart-4: #FFE58A;
+  --chart-5: #7A5A00;
+
+  /* Sidebar */
+  --sidebar-background: #0A0A0A;
+  --sidebar-foreground: #FFF7CC;
+  --sidebar-primary: #FFD700;
+  --sidebar-primary-foreground: #0A0A0A;
+  --sidebar-accent: #B58E00;
+  --sidebar-accent-foreground: #0A0A0A;
+  --sidebar-border: #7A5A00;
+  --sidebar-ring: #E6C200;
+}
+
+/* Base Styles */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    @apply bg-brown-900 text-gold-100 font-sans antialiased;
+    min-height: 100vh;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+}
+
+/* Component Styles */
+@layer components {
+  /* Metallic Gold Text */
+  .text-gold {
+    background: var(--gold-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Animated Gold Shine */
+  .text-gold-shine {
+    position: relative;
+    background: var(--gold-gradient);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gold-pan 3.2s linear infinite;
+  }
+
+  /* Metallic Border Wrapper */
+  .border-gold {
+    position: relative;
+    border-radius: 10px;
+  }
+
+  .border-gold::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--gold-gradient);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Dark Panel */
+  .panel-dark {
+    background: radial-gradient(60% 80% at 50% 20%, #121212 0%, #0A0A0A 60%, #080808 100%);
+    border-radius: 0.6rem;
+    padding: 1.5rem;
+  }
+
+  /* Buttons */
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 font-bold tracking-wide;
+    @apply text-black-900 rounded-lg border-none cursor-pointer;
+    @apply transition-all duration-200 ease-in-out;
+    background: var(--gold-gradient);
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
+  }
+
+  .btn-gold:hover {
+    filter: brightness(1.05);
+    box-shadow: 0 0 18px 0 rgba(255, 215, 0, 0.35);
+  }
+
+  .btn-gold:active {
+    transform: translateY(1px) scale(0.99);
+  }
+
+  .btn-gold:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px #000, 0 0 0 5px rgba(255, 215, 0, 0.6);
+  }
+
+  /* Ghost Button with Gold Edge */
+  .btn-gold-ghost {
+    @apply bg-transparent text-gold-300 rounded-lg px-4 py-3 relative border-none cursor-pointer font-semibold;
+    @apply transition-colors duration-200;
+  }
+
+  .btn-gold-ghost::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--gold-gradient);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .btn-gold-ghost:hover {
+    @apply text-gold-100;
+  }
+
+  /* Inputs */
+  .input-dark {
+    @apply w-full bg-black-900 text-gold-100 border border-gray-800 rounded-lg px-4 py-3;
+    @apply transition-all duration-200;
+  }
+
+  .input-dark::placeholder {
+    @apply text-gold-700;
+  }
+
+  .input-dark:focus {
+    @apply outline-none border-gold-600;
+    box-shadow: 0 0 0 3px rgba(181, 142, 0, 0.25);
+  }
+
+  /* Horizontal Rule */
+  .hr-gold {
+    height: 1px;
+    border: 0;
+    background: var(--gold-gradient);
+    opacity: 0.9;
+  }
+
+  /* Badge */
+  .badge-gold {
+    @apply inline-block px-3 py-1 rounded-lg text-gold-300 text-xs font-semibold relative;
+    background: linear-gradient(180deg, #2c1a1a, #0A0A0A);
+    border: 1px solid transparent;
+  }
+
+  .badge-gold::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--gold-gradient);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  /* Card Component */
+  .card-dark {
+    @apply panel-dark border-gold;
+  }
+
+  /* Loading Skeleton */
+  .skeleton {
+    background: linear-gradient(90deg, #121212 25%, #1a1515 50%, #121212 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 0.5rem;
+  }
+
+  /* Table Styles */
+  .table-dark {
+    @apply w-full border-collapse;
+  }
+
+  .table-dark thead th {
+    @apply bg-black-900 text-gold-300 px-4 py-3 text-left font-semibold;
+    border-bottom: 2px solid var(--gold-800);
+  }
+
+  .table-dark tbody td {
+    @apply px-4 py-3 border-b border-gray-800;
+  }
+
+  .table-dark tbody tr:hover {
+    @apply bg-black-900/50;
+  }
+
+  /* Dashboard Grid */
+  .dashboard-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  }
+
+  /* Stat Card */
+  .stat-card {
+    @apply panel-dark border-gold;
+  }
+
+  .stat-card-title {
+    @apply text-gold-300 text-sm font-semibold uppercase tracking-wide;
+  }
+
+  .stat-card-value {
+    @apply text-3xl font-bold text-gold mt-2;
+  }
+
+  .stat-card-change {
+    @apply text-sm mt-1;
+  }
+
+  .stat-card-change.positive {
+    @apply text-green-400;
+  }
+
+  .stat-card-change.negative {
+    @apply text-red-400;
+  }
+
+  /* Chat Message */
+  .chat-message {
+    @apply mb-4 flex;
+  }
+
+  .chat-message.user {
+    @apply justify-end;
+  }
+
+  .chat-message.bot {
+    @apply justify-start;
+  }
+
+  .chat-bubble {
+    @apply px-4 py-3 rounded-lg max-w-xs md:max-w-md;
+  }
+
+  .chat-bubble.user {
+    background: var(--gold-gradient);
+    @apply text-black-900;
+  }
+
+  .chat-bubble.bot {
+    @apply bg-black-900 text-gold-100 border-gold;
+  }
+
+  /* Calendar Styles */
+  .calendar-day {
+    @apply p-2 text-center cursor-pointer rounded transition-colors;
+  }
+
+  .calendar-day:hover {
+    @apply bg-black-900;
+  }
+
+  .calendar-day.selected {
+    background: var(--gold-gradient);
+    @apply text-black-900 font-bold;
+  }
+
+  .calendar-day.disabled {
+    @apply opacity-30 cursor-not-allowed;
+  }
+
+  /* Feature Gate Badge */
+  .feature-premium {
+    @apply relative;
+  }
+
+  .feature-premium::after {
+    content: "PREMIUM";
+    @apply badge-gold absolute -top-2 -right-2 text-xs;
+  }
+}
+
+/* Utility Classes */
+@layer utilities {
+  .text-shadow-gold {
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+  }
+
+  .backdrop-blur-dark {
+    backdrop-filter: blur(10px);
+    background-color: rgba(10, 10, 10, 0.8);
+  }
+
+  .gradient-border {
+    border-image: var(--gold-gradient) 1;
+  }
+
+  .scrollbar-gold::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .scrollbar-gold::-webkit-scrollbar-track {
+    background: #0A0A0A;
+  }
+
+  .scrollbar-gold::-webkit-scrollbar-thumb {
+    background: var(--gold-gradient);
+    border-radius: 4px;
+  }
+
+  .scrollbar-gold::-webkit-scrollbar-thumb:hover {
+    filter: brightness(1.2);
+  }
+}
+
+/* Animation Keyframes */
+@keyframes gold-pan {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
