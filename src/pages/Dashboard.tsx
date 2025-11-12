@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Link2, Sparkles, Calendar, Image, QrCode, TrendingUp, ArrowRight, Zap } from 'lucide-react'
+import GitHubSidebar from '../components/Dashboard/GitHubSidebar'
 
 const tools = [
   {
@@ -62,10 +63,14 @@ const stats = [
 
 export default function Dashboard() {
   return (
-    <div className="section">
-      <div className="container" style={{ maxWidth: '1400px' }}>
-        {/* Header */}
-        <div style={{ marginBottom: '3rem' }}>
+    <>
+      {/* GitHub-style Sidebar */}
+      <GitHubSidebar />
+
+      <div className="section">
+        <div className="container" style={{ maxWidth: '1400px' }}>
+          {/* Header */}
+          <div style={{ marginBottom: '3rem' }}>
           <h1 className="text-gold-gradient" style={{ marginBottom: '0.5rem' }}>
             Welcome Back!
           </h1>
@@ -219,6 +224,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
