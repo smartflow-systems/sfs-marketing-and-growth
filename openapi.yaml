@@ -1,0 +1,485 @@
+openapi: 3.0.3
+info:
+  title: SmartFlow Marketing & Growth Platform API
+  description: |
+    Complete API documentation for the SmartFlow Marketing & Growth Platform.
+
+    ## Features
+    - AI-powered content generation (OpenAI GPT-4 & Anthropic Claude)
+    - Social media automation (Twitter, Facebook, Instagram, LinkedIn)
+    - Email campaign management
+    - Multi-tenant booking system
+    - Analytics and SEO tools
+    - File storage (AWS S3 & Cloudinary)
+
+    ## Authentication
+    Currently using session-based authentication. API key authentication coming soon.
+
+    ## Rate Limiting
+    - Default: 60 requests per minute per IP
+    - AI endpoints: 10 requests per minute
+    - Social media endpoints: 30 requests per hour
+
+    Rate limit headers are included in all responses:
+    - `X-RateLimit-Limit`: Maximum requests allowed
+    - `X-RateLimit-Remaining`: Requests remaining
+    - `X-RateLimit-Reset`: Unix timestamp when limit resets
+  version: 1.0.0
+  contact:
+    name: SmartFlow Systems Support
+    email: support@smartflowsystems.com
+    url: https://smartflowsystems.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:5000
+    description: Development server
+  - url: https://api.smartflowsystems.com
+    description: Production server
+
+tags:
+  - name: AI
+    description: AI-powered content generation
+  - name: Social Media
+    description: Social media automation and scheduling
+  - name: Email
+    description: Email campaign management
+  - name: Bookings
+    description: Multi-tenant booking system
+  - name: Analytics
+    description: Analytics and metrics
+  - name: Storage
+    description: File upload and storage
+  - name: Auth
+    description: Authentication and user management
+
+paths:
+  # ==================
+  # AI Endpoints
+  # ==================
+  /api/ai/status:
+    get:
+      tags: [AI]
+      summary: Check AI service availability
+      description: Returns status of configured AI providers (OpenAI and Anthropic)
+      responses:
+        '200':
+          description: AI service status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available:
+                    type: boolean
+                    description: Whether any AI provider is available
+                  provider:
+                    type: string
+                    enum: [openai, anthropic]
+                    description: Preferred AI provider
+                  has_openai:
+                    type: boolean
+                  has_anthropic:
+                    type: boolean
+
+  /api/ai/generate-posts:
+    post:
+      tags: [AI]
+      summary: Generate social media posts
+      description: Generate AI-powered social media posts optimized for specific platforms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [topic, niche, platform, tone]
+              properties:
+                topic:
+                  type: string
+                  description: Topic or announcement for the post
+                  example: "Launching our new product"
+                niche:
+                  type: string
+                  enum: [Tech & SaaS, E-commerce, Fitness & Wellness, Finance & Investing, Food & Beverage, Fashion & Beauty, Real Estate, Marketing & Advertising, Travel & Lifestyle, Education & Coaching]
+                  example: "Tech & SaaS"
+                platform:
+                  type: string
+                  enum: [Instagram, Twitter, LinkedIn, Facebook, TikTok]
+                  example: "LinkedIn"
+                tone:
+                  type: string
+                  enum: [Professional, Casual, Funny, Inspirational, Educational]
+                  example: "Professional"
+                num_variations:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                  default: 3
+                  description: Number of post variations to generate
+      responses:
+        '200':
+          description: Successfully generated posts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  is_ai_generated:
+                    type: boolean
+                    description: Whether real AI was used or mock data
+                  posts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SocialPost'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/ai/generate-email:
+    post:
+      tags: [AI, Email]
+      summary: Generate email campaign content
+      description: Generate AI-powered email campaign with subject, preview, and body
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subject, audience, goal]
+              properties:
+                subject:
+                  type: string
+                  description: Email subject or theme
+                  example: "New Feature Launch"
+                audience:
+                  type: string
+                  description: Target audience
+                  example: "Active Users"
+                goal:
+                  type: string
+                  enum: [Engagement, Conversions, Awareness, Retention, Upsell]
+                  example: "Engagement"
+                tone:
+                  type: string
+                  enum: [Professional, Casual, Friendly, Urgent, Educational]
+                  default: "Professional"
+      responses:
+        '200':
+          description: Successfully generated email
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  is_ai_generated:
+                    type: boolean
+                  email:
+                    $ref: '#/components/schemas/EmailContent'
+
+  # ==================
+  # Social Media Endpoints
+  # ==================
+  /api/social/post:
+    post:
+      tags: [Social Media]
+      summary: Post to social media immediately
+      description: Post content to a social media platform right away
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [platform, content]
+              properties:
+                platform:
+                  type: string
+                  enum: [Instagram, Twitter, LinkedIn, Facebook, TikTok]
+                content:
+                  type: string
+                  description: Post text/caption
+                media_urls:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+                  description: URLs of media to attach
+      responses:
+        '200':
+          description: Post successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  result:
+                    type: object
+                    properties:
+                      success:
+                        type: boolean
+                      post_id:
+                        type: string
+                      url:
+                        type: string
+                        format: uri
+
+  /api/social/schedule:
+    post:
+      tags: [Social Media]
+      summary: Schedule a social media post
+      description: Schedule a post for later publication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [platform, content, scheduled_at]
+              properties:
+                platform:
+                  type: string
+                  enum: [Instagram, Twitter, LinkedIn, Facebook, TikTok]
+                content:
+                  type: string
+                media_urls:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+                scheduled_at:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 timestamp
+                  example: "2025-11-15T14:30:00Z"
+      responses:
+        '200':
+          description: Post scheduled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  post:
+                    $ref: '#/components/schemas/ScheduledPost'
+
+  /api/social/platforms/status:
+    get:
+      tags: [Social Media]
+      summary: Check configured social platforms
+      description: Returns which social media platforms are configured and ready
+      responses:
+        '200':
+          description: Platform status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  twitter:
+                    type: boolean
+                  facebook:
+                    type: boolean
+                  instagram:
+                    type: boolean
+                  linkedin:
+                    type: boolean
+                  tiktok:
+                    type: boolean
+
+  # ==================
+  # Booking Endpoints
+  # ==================
+  /api/tenants/{tenant_id}/bookings:
+    get:
+      tags: [Bookings]
+      summary: List upcoming bookings
+      description: Get upcoming bookings for a tenant (next 72 hours)
+      parameters:
+        - name: tenant_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+
+    post:
+      tags: [Bookings]
+      summary: Create a booking
+      description: Create a new booking for a tenant
+      parameters:
+        - name: tenant_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [start_at]
+              properties:
+                customer_name:
+                  type: string
+                  default: "Walk-in"
+                customer_email:
+                  type: string
+                  format: email
+                customer_phone:
+                  type: string
+                start_at:
+                  type: string
+                  format: date-time
+                  description: ISO 8601 timestamp
+                  example: "2025-11-15T15:30:00Z"
+      responses:
+        '200':
+          description: Booking created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  booking_id:
+                    type: string
+
+# ==================
+# Components
+# ==================
+components:
+  schemas:
+    SocialPost:
+      type: object
+      properties:
+        caption:
+          type: string
+        hashtags:
+          type: array
+          items:
+            type: string
+        platform:
+          type: string
+        variation_number:
+          type: integer
+
+    EmailContent:
+      type: object
+      properties:
+        subject_line:
+          type: string
+        preview_text:
+          type: string
+        body_html:
+          type: string
+
+    ScheduledPost:
+      type: object
+      properties:
+        id:
+          type: string
+        platform:
+          type: string
+        status:
+          type: string
+          enum: [scheduled, posting, posted, failed]
+        scheduled_at:
+          type: string
+          format: date-time
+
+    Booking:
+      type: object
+      properties:
+        id:
+          type: string
+        customer_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        start_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [confirmed, cancelled, completed]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        retry_after:
+          type: integer
+          description: Seconds to wait before retrying (for rate limits)
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+        X-RateLimit-Remaining:
+          schema:
+            type: integer
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: session
+
+security:
+  - sessionAuth: []

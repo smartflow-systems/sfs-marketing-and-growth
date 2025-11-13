@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import Calendar from 'react-calendar';
-import { format, addDays, setHours, setMinutes } from 'date-fns';
+import { format } from 'date-fns';
 import { FeatureGate } from './feature-gate';
 import 'react-calendar/dist/Calendar.css';
+
+type ValuePiece = Date | null;
+type CalendarValue = ValuePiece | [ValuePiece, ValuePiece];
 
 interface TimeSlot {
   time: string;
@@ -68,9 +71,11 @@ export const BookingSystem: React.FC<BookingSystemProps> = ({
 
   const timeSlots = generateTimeSlots();
 
-  const handleDateChange = (date: Date) => {
-    setSelectedDate(date);
-    setSelectedTime('');
+  const handleDateChange = (value: CalendarValue) => {
+    if (value instanceof Date) {
+      setSelectedDate(value);
+      setSelectedTime('');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {

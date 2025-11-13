@@ -13,8 +13,15 @@ const Success = lazy(() => import('./pages/Success'))
 const UTMBuilder = lazy(() => import('./pages/tools/UTMBuilder'))
 const LinkInBio = lazy(() => import('./pages/tools/LinkInBio'))
 const AIPostGenerator = lazy(() => import('./pages/tools/AIPostGenerator'))
+const EmailCampaignBuilder = lazy(() => import('./pages/tools/EmailCampaignBuilder'))
 const CampaignCalendar = lazy(() => import('./pages/tools/CampaignCalendar'))
 const OGImageGenerator = lazy(() => import('./pages/tools/OGImageGenerator'))
+const SEOToolkit = lazy(() => import('./pages/tools/SEOToolkit'))
+const ABTesting = lazy(() => import('./pages/tools/ABTesting'))
+
+// Analytics & Admin
+const Analytics = lazy(() => import('./pages/Analytics'))
+const CustomerJourney = lazy(() => import('./pages/CustomerJourney'))
 
 // Loading fallback component
 function LoadingFallback() {
@@ -49,13 +56,20 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="success" element={<Success />} />
 
+            {/* Analytics */}
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="customer-journey" element={<CustomerJourney />} />
+
             {/* Growth Tools */}
             <Route path="tools">
               <Route path="utm-builder" element={<UTMBuilder />} />
               <Route path="link-in-bio" element={<LinkInBio />} />
               <Route path="ai-post-generator" element={<AIPostGenerator />} />
+              <Route path="email-campaigns" element={<EmailCampaignBuilder />} />
               <Route path="campaign-calendar" element={<CampaignCalendar />} />
               <Route path="og-image-generator" element={<OGImageGenerator />} />
+              <Route path="seo" element={<SEOToolkit />} />
+              <Route path="ab-testing" element={<ABTesting />} />
             </Route>
           </Route>
         </Routes>

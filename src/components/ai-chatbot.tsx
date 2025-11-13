@@ -259,7 +259,7 @@ export const InlineChatbot: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
 
-  const generateResponse = (userMessage: string): string => {
+  const generateResponse = (_userMessage: string): string => {
     // Same logic as above
     return 'Thanks for your message! Our team will get back to you shortly.';
   };

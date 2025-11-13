@@ -4,6 +4,10 @@ on:
   push: { branches: [ main, "users/**", "feat/**" ] }
   workflow_dispatch:
 
+# Security: Explicitly set minimal permissions
+permissions:
+  contents: read
+
 jobs:
   test:
     name: test

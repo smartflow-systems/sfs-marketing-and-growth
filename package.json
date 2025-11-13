@@ -12,7 +12,12 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "sync": "bash scripts/auto-sync.sh",
+    "auto-commit": "git add . && git commit -m 'chore: auto-commit [Auto-Sync]' || true",
+    "pull": "git pull --no-edit",
+    "push": "git push",
+    "sync-all": "npm run auto-commit && npm run sync"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
@@ -24,7 +29,9 @@
     "@types/express-session": "^1.18.2",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node-cron": "^3.0.11",
+    "@types/react-big-calendar": "^1.16.3",
     "bcryptjs": "^3.0.2",
+    "chart.js": "^4.5.1",
     "clsx": "^2.0.0",
     "connect-pg-simple": "^10.0.0",
     "cors": "^2.8.5",
@@ -33,7 +40,9 @@
     "drizzle-kit": "^0.31.6",
     "drizzle-orm": "^0.44.7",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
     "express-session": "^1.18.2",
+    "helmet": "^8.1.0",
     "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.294.0",
@@ -43,6 +52,7 @@
     "react": "^18.2.0",
     "react-big-calendar": "^1.19.4",
     "react-calendar": "^4.7.0",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.0",
     "resend": "^6.4.0",
@@ -50,6 +60,7 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.17",
     "@types/papaparse": "^5.3.14",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^18.2.43",
@@ -57,10 +68,12 @@
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.21",
     "concurrently": "^9.2.1",
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "tailwindcss": "^4.1.17",
     "tsx": "^4.20.6",
     "typescript": "^5.2.2",
     "vite": "^7.1.12"
