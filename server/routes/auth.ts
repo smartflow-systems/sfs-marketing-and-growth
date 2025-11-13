@@ -5,11 +5,12 @@ import { users } from '../../db/schema';
 import { eq } from 'drizzle-orm';
 import { generateToken, authenticate, AuthRequest } from '../middleware/auth';
 import { emailService } from '../services/email';
+import { authLimiter, apiLimiter } from '../middleware/security';
 
 const router = Router();
 
 // Register
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
   try {
     const { email, password, name } = req.body;
 
@@ -61,7 +62,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Login
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -104,7 +105,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Get current user
-router.get('/me', authenticate, async (req: AuthRequest, res) => {
+router.get('/me', apiLimiter, authenticate, async (req: AuthRequest, res) => {
   try {
     const [user] = await db.select().from(users).where(eq(users.id, req.userId!)).limit(1);
 
@@ -128,7 +129,7 @@ router.get('/me', authenticate, async (req: AuthRequest, res) => {
 });
 
 // Update user profile
-router.patch('/me', authenticate, async (req: AuthRequest, res) => {
+router.patch('/me', apiLimiter, authenticate, async (req: AuthRequest, res) => {
   try {
     const { name } = req.body;
 
