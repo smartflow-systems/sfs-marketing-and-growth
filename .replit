@@ -1,33 +1,27 @@
-modules = ["nodejs-20"]
+set -euo pipefail
 
-[nix]
-packages = ["gh"]
+# Backup the current .replit file
+cp .replit .replit.pre-magick
 
-[deployment]
-deploymentTarget = "autoscale"
-run = ["python", "app.py"]
+# Overwrite .replit to ensure it includes all desired packages (OVERWRITE)
+apply_patch <<'EOF'
+*** Begin Patch
+*** Update File: .replit
+@@
+-modules = ["nodejs-20"]
++modules = ["nodejs-20"]
 
-[workflows]
-runButton = "Project"
+@@ [nix]
+-packages = ["gh", "imagemagick"]
++packages = ["gh", "imagemagick", "mailutils", "graphicsmagick-imagemagick-compat"]
+*** End Patch
+EOF
 
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
+# Trigger environment rebuild (will occur on next Run)
+echo "Configuration updated. Press Run in Replit to rebuild the environment."
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Server"
-
-[[workflows.workflow]]
-name = "Server"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python app.py"
-waitForPort = 5000
-
-[[ports]]
-localPort = 5000
-externalPort = 80
+# Commit changes if using git
+if [ -d .git ]; then
+  git add .replit
+  git commit -m "chore: install imagemagick, mailutils & graphicsmagick via Nix"
+fi
