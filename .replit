@@ -1,27 +1,37 @@
-set -euo pipefail
+modules = ["python-3.11"]
 
-# Backup the current .replit file
-cp .replit .replit.pre-magick
+[nix]
+channel = "stable-25_05"
+packages = ["openssl", "postgresql"]
 
-# Overwrite .replit to ensure it includes all desired packages (OVERWRITE)
-apply_patch <<'EOF'
-*** Begin Patch
-*** Update File: .replit
-@@
--modules = ["nodejs-20"]
-+modules = ["nodejs-20"]
+[deployment]
+deploymentTarget = "autoscale"
+run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 
-@@ [nix]
--packages = ["gh", "imagemagick"]
-+packages = ["gh", "imagemagick", "mailutils", "graphicsmagick-imagemagick-compat"]
-*** End Patch
-EOF
+[workflows]
+runButton = "Project"
 
-# Trigger environment rebuild (will occur on next Run)
-echo "Configuration updated. Press Run in Replit to rebuild the environment."
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
 
-# Commit changes if using git
-if [ -d .git ]; then
-  git add .replit
-  git commit -m "chore: install imagemagick, mailutils & graphicsmagick via Nix"
-fi
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+waitForPort = 5000
+
+[agent]
+integrations = ["twilio_send_message==1.0.0", "flask_stripe==1.0.0"]
+
+[[ports]]
+localPort = 5000
+externalPort = 80
