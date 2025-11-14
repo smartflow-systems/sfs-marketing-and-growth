@@ -1,16 +1,11 @@
-modules = ["nodejs-20", "python-3.11"]
+modules = ["nodejs-20"]
 
 [nix]
-channel = "stable-25_05"
-
-packages = ["openssl", "postgresql", "imagemagick_light", "mailutils"]
-
-packages = ["openssl", "postgresql", "imagemagick_light", "mailutils", "gh"]
-
+packages = ["gh"]
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
+run = ["python", "app.py"]
 
 [workflows]
 runButton = "Project"
@@ -22,32 +17,17 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start application"
+args = "Server"
 
 [[workflows.workflow]]
-name = "Start application"
+name = "Server"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+args = "python app.py"
 waitForPort = 5000
-
-[agent]
-integrations = ["twilio_send_message==1.0.0", "flask_stripe==1.0.0"]
-
-[[ports]]
-localPort = 3000
-externalPort = 3000
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 5173
-externalPort = 5173
-
-[[ports]]
-localPort = 35717
-externalPort = 3001

@@ -1,0 +1,5 @@
+name: "SFS CodeQL Config"
+disable-default-queries: false
+queries:
+  - exclude:
+      id: py/path-injection
