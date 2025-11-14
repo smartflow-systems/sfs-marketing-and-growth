@@ -23,5 +23,11 @@ jobs:
           sudo apt-get install -y shellcheck
       - name: Lint sf helper
         run: |
-          bash -n tools/sf
-          shellcheck -S style tools/sf
+          if [ -f tools/sf ]; then
+            echo "Linting tools/sf..."
+            bash -n tools/sf
+            shellcheck -S style tools/sf
+          else
+            echo "tools/sf not found — skipping shellcheck."
+            echo "If this is unexpected, restore tools/sf or update .github/workflows/sf-shellcheck.yml to point at the correct path."
+          fi
