@@ -4,8 +4,6 @@ import uuid
 import logging
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash, session
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import and_
 from werkzeug.middleware.proxy_fix import ProxyFix
 from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
@@ -15,16 +13,10 @@ from flask_socketio import SocketIO
 from flask_cors import CORS
 
 from config import Config, FEATURES_BY_PLAN, PLAN_DETAILS
+from database import db
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
-
-
-class Base(DeclarativeBase):
-    pass
-
-
-db = SQLAlchemy(model_class=Base)
 
 # Create the app
 app = Flask(__name__)
