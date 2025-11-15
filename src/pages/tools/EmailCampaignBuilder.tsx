@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Mail, Send, Eye, Clock, TrendingUp, Users, Copy, CheckCircle2 } from 'lucide-react'
+import { Mail, Send, Eye, Clock, Copy, CheckCircle2 } from 'lucide-react'
 
 interface EmailTemplate {
   id: string
@@ -7,14 +7,6 @@ interface EmailTemplate {
   subject_line: string
   preview_text: string
   category: string
-}
-
-interface CampaignMetrics {
-  sent_count: number
-  opened_count: number
-  clicked_count: number
-  open_rate: number
-  click_rate: number
 }
 
 export default function EmailCampaignBuilder() {

@@ -68,7 +68,7 @@ const EXPERIMENT_TYPES = [
 export default function ABTesting() {
   const [activeTab, setActiveTab] = useState<'experiments' | 'create' | 'results'>('experiments')
   const [experiments, setExperiments] = useState<Experiment[]>([])
-  const [selectedExperiment, setSelectedExperiment] = useState<string | null>(null)
+  const [, setSelectedExperiment] = useState<string | null>(null)
   const [experimentResults, setExperimentResults] = useState<ExperimentResults | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
