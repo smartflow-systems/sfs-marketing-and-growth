@@ -3,86 +3,178 @@ import { db } from '../../db';
 import { aiPosts, analyticsEvents } from '../../db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { authenticate, requireSubscription, AuthRequest } from '../middleware/auth';
+import { AIService } from '../services/ai-service';
 
 const router = Router();
 
 // All routes require authentication
 router.use(authenticate);
 
-// Generate AI post
+// ✨ Generate AI posts with real OpenAI/Claude integration
 router.post('/generate', requireSubscription(['pro', 'enterprise', 'free']), async (req: AuthRequest, res) => {
   try {
-    const { platform, niche, tone, prompt, campaignId } = req.body;
+    const { topic, platform, niche, tone, numVariations, campaignId, brandVoice, targetAudience } = req.body;
 
-    if (!platform || !prompt) {
-      return res.status(400).json({ error: 'Platform and prompt are required' });
+    // Validate required fields
+    if (!topic || !platform || !niche || !tone) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        required: ['topic', 'platform', 'niche', 'tone']
+      });
     }
 
-    // Check if user has OpenAI configured
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(503).json({ error: 'AI service not configured' });
+    // Check subscription limits
+    const user = await db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.id, req.userId!)
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    // Generate AI content (placeholder - integrate with OpenAI API)
-    const content = await generateAIContent(prompt, platform, niche, tone);
-    const hashtags = await generateHashtags(niche, platform);
+    // Subscription tier limits (posts per generation)
+    const limits = {
+      free: 3,        // 3 variations max
+      pro: 5,         // 5 variations max
+      enterprise: 10  // 10 variations max
+    };
 
-    // Save post
-    const [newPost] = await db.insert(aiPosts).values({
-      userId: req.userId!,
-      campaignId: campaignId || null,
+    const maxVariations = limits[user.subscriptionTier as keyof typeof limits] || 3;
+    const requestedVariations = Math.min(numVariations || 3, maxVariations);
+
+    console.log(`🎨 Generating ${requestedVariations} AI posts for ${user.email}...`);
+
+    // Generate AI posts using our powerhouse AI service
+    const generatedPosts = await AIService.generatePosts({
+      topic,
+      niche,
       platform,
-      niche: niche || null,
-      tone: tone || null,
-      content,
-      hashtags,
-      prompt,
-      isFavorite: false,
-      isScheduled: false,
-    }).returning();
+      tone,
+      numVariations: requestedVariations,
+      brandVoice,
+      targetAudience
+    });
 
-    // Track analytics
+    console.log(`✅ Successfully generated ${generatedPosts.length} posts`);
+
+    // Save all posts to database
+    const savedPosts = [];
+    for (const post of generatedPosts) {
+      const [saved] = await db.insert(aiPosts).values({
+        userId: req.userId!,
+        campaignId: campaignId || null,
+        platform: post.platform,
+        niche,
+        tone,
+        content: post.caption,
+        hashtags: post.hashtags.join(' '),
+        prompt: topic,
+        isFavorite: false,
+        isScheduled: false,
+      }).returning();
+
+      savedPosts.push({
+        ...saved,
+        score: post.score,
+        estimatedEngagement: post.estimatedEngagement,
+        tips: post.tips,
+        hashtagArray: post.hashtags
+      });
+    }
+
+    // Track analytics event
     await db.insert(analyticsEvents).values({
       userId: req.userId!,
       campaignId: campaignId || null,
       eventType: 'ai_post_generated',
-      eventData: { platform, niche, tone },
+      eventData: {
+        platform,
+        niche,
+        tone,
+        count: generatedPosts.length,
+        provider: AIService.getStatus().activeProvider
+      },
     });
 
-    res.status(201).json(newPost);
-  } catch (error) {
-    console.error('Generate AI post error:', error);
-    res.status(500).json({ error: 'Failed to generate post' });
+    // Return response with AI metadata
+    const status = AIService.getStatus();
+    res.status(201).json({
+      success: true,
+      posts: savedPosts,
+      metadata: {
+        generated: savedPosts.length,
+        provider: status.activeProvider,
+        model: status.activeProvider === 'openai' ? status.openai.model : status.anthropic.model,
+        subscriptionTier: user.subscriptionTier,
+        maxVariations
+      }
+    });
+
+  } catch (error: any) {
+    console.error('❌ Generate AI post error:', error);
+    res.status(500).json({
+      error: 'Failed to generate posts',
+      message: error.message,
+      fallback: 'Try again or contact support'
+    });
   }
 });
 
-// Helper function to generate AI content
-async function generateAIContent(prompt: string, platform: string, niche?: string, tone?: string): Promise<string> {
-  // This is a placeholder. In production, integrate with OpenAI API:
-  /*
-  const response = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: [{
-      role: "system",
-      content: `You are a social media expert. Create engaging ${platform} content for the ${niche} niche with a ${tone} tone.`
-    }, {
-      role: "user",
-      content: prompt
-    }],
-    max_tokens: 500
-  });
-  return response.choices[0].message.content;
-  */
+// 🏷️ Generate smart hashtags endpoint
+router.post('/hashtags', requireSubscription(['pro', 'enterprise', 'free']), async (req: AuthRequest, res) => {
+  try {
+    const { topic, niche, platform, count = 10 } = req.body;
 
-  return `🚀 ${prompt}\n\nGenerated for ${platform} with ${tone || 'professional'} tone in the ${niche || 'general'} niche.\n\n[AI-generated content placeholder - integrate OpenAI API for production]`;
-}
+    if (!topic || !niche) {
+      return res.status(400).json({ error: 'Topic and niche are required' });
+    }
 
-// Helper function to generate hashtags
-async function generateHashtags(niche?: string, platform?: string): Promise<string> {
-  // Placeholder - could use OpenAI or predefined hashtag sets
-  const commonHashtags = ['#marketing', '#growth', '#business', '#entrepreneur'];
-  return commonHashtags.slice(0, 3).join(' ');
-}
+    const hashtags = await AIService.generateHashtags(topic, niche, platform || 'instagram', count);
+
+    res.json({
+      success: true,
+      hashtags,
+      count: hashtags.length
+    });
+  } catch (error: any) {
+    console.error('Hashtag generation error:', error);
+    res.status(500).json({ error: 'Failed to generate hashtags' });
+  }
+});
+
+// 🔍 Analyze content endpoint
+router.post('/analyze', requireSubscription(['pro', 'enterprise', 'free']), async (req: AuthRequest, res) => {
+  try {
+    const { content } = req.body;
+
+    if (!content) {
+      return res.status(400).json({ error: 'Content is required' });
+    }
+
+    const analysis = await AIService.analyzeContent(content);
+
+    res.json({
+      success: true,
+      analysis
+    });
+  } catch (error: any) {
+    console.error('Content analysis error:', error);
+    res.status(500).json({ error: 'Failed to analyze content' });
+  }
+});
+
+// 📊 Get AI service status
+router.get('/ai-status', async (req: AuthRequest, res) => {
+  try {
+    const status = AIService.getStatus();
+    res.json({
+      success: true,
+      ...status
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get AI status' });
+  }
+});
 
 // Get all posts for user
 router.get('/', async (req: AuthRequest, res) => {
