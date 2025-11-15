@@ -20,6 +20,7 @@
     "sync-all": "npm run auto-commit && npm run sync"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.17.0",
     "@neondatabase/serverless": "^1.0.2",
     "@stripe/react-stripe-js": "^2.4.0",
     "@stripe/stripe-js": "^2.2.0",
@@ -37,7 +38,7 @@
     "cors": "^2.8.5",
     "date-fns": "^2.30.0",
     "dotenv": "^17.2.3",
-    "drizzle-kit": "^0.31.6",
+    "drizzle-kit": "^0.31.7",
     "drizzle-orm": "^0.44.7",
     "express": "^5.1.0",
     "express-rate-limit": "^8.2.1",
@@ -47,6 +48,7 @@
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.294.0",
     "node-cron": "^4.2.1",
+    "openai": "^4.28.0",
     "papaparse": "^5.4.1",
     "qrcode": "^1.5.3",
     "react": "^18.2.0",
