@@ -24,7 +24,7 @@ mailchimp-marketing==3.0.80
 # Data Visualization & Analytics
 pandas==2.3.3
 plotly==5.18.0
-numpy==2.3.4
+numpy==2.3.5
 
 # AI/ML Support
 openai==2.7.1
