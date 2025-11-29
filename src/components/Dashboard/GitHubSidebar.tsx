@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { X, Menu, Home, Zap, DollarSign, BookOpen, HeartHandshake, LayoutDashboard, TrendingUp, Map } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { X, Menu, Home, Zap, DollarSign, LayoutDashboard, TrendingUp, Map } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 export default function GitHubSidebar() {
   const [isOpen, setIsOpen] = useState(false)

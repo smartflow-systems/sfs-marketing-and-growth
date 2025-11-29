@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, TrendingUp, Link2, FileSearch, AlertCircle, CheckCircle2, Copy } from 'lucide-react'
+import { Search, TrendingUp, Link2, FileSearch, AlertCircle, CheckCircle2 } from 'lucide-react'
 
 interface KeywordData {
   keyword: string

@@ -9,6 +9,7 @@ const tools = [
     description: 'Create trackable campaign links with QR codes',
     path: '/tools/utm-builder',
     color: '#FFD700',
+    comingSoon: false,
   },
   {
     icon: QrCode,
@@ -16,6 +17,7 @@ const tools = [
     description: 'Build beautiful link landing pages',
     path: '/tools/link-in-bio',
     color: '#E6C200',
+    comingSoon: false,
   },
   {
     icon: Sparkles,
@@ -23,6 +25,7 @@ const tools = [
     description: 'Generate engaging social media content',
     path: '/tools/ai-post-generator',
     color: '#FFD700',
+    comingSoon: false,
   },
   {
     icon: Calendar,
@@ -30,6 +33,7 @@ const tools = [
     description: 'Plan and visualize your campaigns',
     path: '/tools/campaign-calendar',
     color: '#E6C200',
+    comingSoon: false,
   },
   {
     icon: Image,
@@ -37,6 +41,7 @@ const tools = [
     description: 'Create stunning social share images',
     path: '/tools/og-image-generator',
     color: '#FFD700',
+    comingSoon: false,
   },
   {
     icon: TrendingUp,
@@ -44,6 +49,7 @@ const tools = [
     description: 'Track your growth metrics',
     path: '/analytics',
     color: '#E6C200',
+    comingSoon: false,
   },
   {
     icon: Mail,
@@ -51,6 +57,7 @@ const tools = [
     description: 'Build powerful email campaigns',
     path: '/tools/email-campaigns',
     color: '#FFD700',
+    comingSoon: false,
   },
   {
     icon: Search,
@@ -58,6 +65,7 @@ const tools = [
     description: 'Optimize your search rankings',
     path: '/tools/seo',
     color: '#E6C200',
+    comingSoon: false,
   },
   {
     icon: TestTube,
@@ -65,6 +73,7 @@ const tools = [
     description: 'Experiment and optimize',
     path: '/tools/ab-testing',
     color: '#FFD700',
+    comingSoon: false,
   },
   {
     icon: Map,
@@ -72,6 +81,7 @@ const tools = [
     description: 'Visualize conversion funnels',
     path: '/customer-journey',
     color: '#E6C200',
+    comingSoon: false,
   },
 ]
 
@@ -98,13 +108,13 @@ export default function Dashboard() {
         <div className="container" style={{ maxWidth: '1400px' }}>
           {/* Header */}
           <div style={{ marginBottom: '3rem' }}>
-          <h1 className="text-gold-gradient" style={{ marginBottom: '0.5rem' }}>
-            Welcome Back!
-          </h1>
-          <p style={{ color: 'var(--sf-muted)', fontSize: '1.125rem' }}>
-            Here's what's happening with your growth tools
-          </p>
-        </div>
+            <h1 className="text-gold-gradient" style={{ marginBottom: '0.5rem' }}>
+              Welcome Back!
+            </h1>
+            <p style={{ color: 'var(--sf-muted)', fontSize: '1.125rem' }}>
+              Here's what's happening with your growth tools
+            </p>
+          </div>
 
         {/* Stats Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6" style={{ marginBottom: '3rem' }}>
@@ -250,6 +260,7 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </>
   )

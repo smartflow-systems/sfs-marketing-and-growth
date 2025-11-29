@@ -15,8 +15,8 @@ module.exports = {
       },
       colors: {
         // SFS Brand Colors
-        brown: { 900: "#4B2E2E" },
-        black: { 900: "#0A0A0A" },
+        brown: { 900: "#3B2F2F" },
+        black: { 900: "#0D0D0D" },
         gold: {
           100: "#FFF7CC",
           300: "#FFE58A",
@@ -83,7 +83,7 @@ module.exports = {
       },
       backgroundImage: {
         "gold-gradient": "linear-gradient(90deg,#7a5a00 0%,#b58e00 16%,#ffd700 33%,#fff1a6 45%,#e6c200 55%,#b58e00 72%,#7a5a00 100%)",
-        "dark-radial": "radial-gradient(60% 80% at 50% 20%, #121212 0%, #0A0A0A 60%, #080808 100%)",
+        "dark-radial": "radial-gradient(60% 80% at 50% 20%, #121212 0%, #0D0D0D 60%, #080808 100%)",
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
