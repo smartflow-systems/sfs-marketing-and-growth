@@ -35,7 +35,3 @@ integrations = ["twilio_send_message==1.0.0", "flask_stripe==1.0.0"]
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 46047
-externalPort = 3000
