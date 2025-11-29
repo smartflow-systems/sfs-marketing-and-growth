@@ -5,8 +5,8 @@
 /* SFS Theme - CSS Variables */
 :root {
   /* Brand Colors */
-  --brown-900: #4B2E2E;
-  --black-900: #0A0A0A;
+  --brown-900: #3B2F2F;
+  --black-900: #0D0D0D;
   --gold-100: #FFF7CC;
   --gold-300: #FFE58A;
   --gold-500: #FFD700;
@@ -18,20 +18,20 @@
   --gold-gradient: linear-gradient(90deg, #7a5a00 0%, #b58e00 16%, #ffd700 33%, #fff1a6 45%, #e6c200 55%, #b58e00 72%, #7a5a00 100%);
 
   /* Semantic Colors */
-  --background: #4B2E2E;
+  --background: #3B2F2F;
   --foreground: #FFF7CC;
   --card: #121212;
   --card-foreground: #FFF7CC;
-  --popover: #0A0A0A;
+  --popover: #0D0D0D;
   --popover-foreground: #FFF7CC;
   --primary: #FFD700;
-  --primary-foreground: #0A0A0A;
-  --secondary: #0A0A0A;
+  --primary-foreground: #0D0D0D;
+  --secondary: #0D0D0D;
   --secondary-foreground: #FFF7CC;
   --muted: #121212;
   --muted-foreground: #FFE58A;
   --accent: #B58E00;
-  --accent-foreground: #0A0A0A;
+  --accent-foreground: #0D0D0D;
   --destructive: #ef4444;
   --destructive-foreground: #FFF7CC;
   --border: #7A5A00;
@@ -47,12 +47,12 @@
   --chart-5: #7A5A00;
 
   /* Sidebar */
-  --sidebar-background: #0A0A0A;
+  --sidebar-background: #0D0D0D;
   --sidebar-foreground: #FFF7CC;
   --sidebar-primary: #FFD700;
-  --sidebar-primary-foreground: #0A0A0A;
+  --sidebar-primary-foreground: #0D0D0D;
   --sidebar-accent: #B58E00;
-  --sidebar-accent-foreground: #0A0A0A;
+  --sidebar-accent-foreground: #0D0D0D;
   --sidebar-border: #7A5A00;
   --sidebar-ring: #E6C200;
 }
@@ -133,7 +133,7 @@
 
   /* Dark Panel */
   .panel-dark {
-    background: radial-gradient(60% 80% at 50% 20%, #121212 0%, #0A0A0A 60%, #080808 100%);
+    background: radial-gradient(60% 80% at 50% 20%, #121212 0%, #0D0D0D 60%, #080808 100%);
     border-radius: 0.6rem;
     padding: 1.5rem;
   }
@@ -209,7 +209,7 @@
   /* Badge */
   .badge-gold {
     @apply inline-block px-3 py-1 rounded-lg text-gold-300 text-xs font-semibold relative;
-    background: linear-gradient(180deg, #2c1a1a, #0A0A0A);
+    background: linear-gradient(180deg, #2c1a1a, #0D0D0D);
     border: 1px solid transparent;
   }
 
@@ -361,7 +361,7 @@
   }
 
   .scrollbar-gold::-webkit-scrollbar-track {
-    background: #0A0A0A;
+    background: #0D0D0D;
   }
 
   .scrollbar-gold::-webkit-scrollbar-thumb {

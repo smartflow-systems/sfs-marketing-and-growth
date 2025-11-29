@@ -12,10 +12,10 @@ class SmartFlowStars {
         this.animationId = null;
         
         this.colors = {
-            circuit: '#d4af37',
+            circuit: '#FFD700',
             circuitDim: 'rgba(212, 175, 55, 0.6)',
             pulse: '#ffdd00',
-            node: '#d4af37',
+            node: '#FFD700',
             star: '#ffdd00'
         };
         

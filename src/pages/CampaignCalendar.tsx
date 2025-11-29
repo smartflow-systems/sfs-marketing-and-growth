@@ -159,8 +159,8 @@ export default function CampaignCalendar() {
 
   // Event style customization
   const eventStyleGetter = useCallback((event: CalendarEvent) => {
-    let backgroundColor = '#d4af37'; // Gold
-    let borderColor = '#d4af37';
+    let backgroundColor = '#FFD700'; // Gold
+    let borderColor = '#FFD700';
 
     if (event.type === 'post') {
       if (event.status === 'draft') {
@@ -392,7 +392,7 @@ export default function CampaignCalendar() {
         .sfs-calendar .rbc-header {
           background: rgba(212, 175, 55, 0.1) !important;
           border-color: rgba(212, 175, 55, 0.2) !important;
-          color: #d4af37 !important;
+          color: #FFD700 !important;
           padding: 12px 4px !important;
           font-weight: 600 !important;
         }
@@ -421,7 +421,7 @@ export default function CampaignCalendar() {
         }
 
         .sfs-calendar .rbc-current .rbc-date-cell {
-          color: #d4af37 !important;
+          color: #FFD700 !important;
           font-weight: bold !important;
         }
 
@@ -442,7 +442,7 @@ export default function CampaignCalendar() {
         }
 
         .sfs-calendar .rbc-toolbar button {
-          color: #d4af37 !important;
+          color: #FFD700 !important;
           background: rgba(212, 175, 55, 0.1) !important;
           border: 1px solid rgba(212, 175, 55, 0.3) !important;
           padding: 8px 16px !important;
@@ -456,9 +456,9 @@ export default function CampaignCalendar() {
         }
 
         .sfs-calendar .rbc-toolbar button.rbc-active {
-          background: linear-gradient(135deg, #d4af37 0%, #f4e5b5 100%) !important;
+          background: linear-gradient(135deg, #FFD700 0%, #f4e5b5 100%) !important;
           color: #0a0a0a !important;
-          border-color: #d4af37 !important;
+          border-color: #FFD700 !important;
         }
 
         .sfs-calendar .rbc-month-row {

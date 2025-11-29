@@ -61,13 +61,13 @@ class EmailService {
             <style>
               body { font-family: 'Inter', -apple-system, sans-serif; background: #0a0a0a; color: #ffffff; margin: 0; padding: 40px 20px; }
               .container { max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 16px; overflow: hidden; }
-              .header { background: linear-gradient(135deg, #d4af37 0%, #f4e5b5 100%); padding: 40px; text-align: center; }
+              .header { background: linear-gradient(135deg, #FFD700 0%, #f4e5b5 100%); padding: 40px; text-align: center; }
               .header h1 { margin: 0; color: #0a0a0a; font-size: 32px; }
               .content { padding: 40px; }
-              .content h2 { color: #d4af37; margin-top: 0; }
+              .content h2 { color: #FFD700; margin-top: 0; }
               .content p { line-height: 1.6; color: #cccccc; }
               .cta { text-align: center; margin: 30px 0; }
-              .button { display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #f4e5b5 100%); color: #0a0a0a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; }
+              .button { display: inline-block; background: linear-gradient(135deg, #FFD700 0%, #f4e5b5 100%); color: #0a0a0a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; }
               .features { margin: 30px 0; }
               .feature { display: flex; align-items: start; margin: 20px 0; }
               .feature-icon { font-size: 24px; margin-right: 12px; }
@@ -161,16 +161,16 @@ class EmailService {
             <style>
               body { font-family: 'Inter', -apple-system, sans-serif; background: #0a0a0a; color: #ffffff; margin: 0; padding: 40px 20px; }
               .container { max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 16px; overflow: hidden; }
-              .header { background: linear-gradient(135deg, #d4af37 0%, #f4e5b5 100%); padding: 40px; text-align: center; }
+              .header { background: linear-gradient(135deg, #FFD700 0%, #f4e5b5 100%); padding: 40px; text-align: center; }
               .header h1 { margin: 0; color: #0a0a0a; font-size: 32px; }
               .content { padding: 40px; }
-              .content h2 { color: #d4af37; margin-top: 0; }
+              .content h2 { color: #FFD700; margin-top: 0; }
               .content p { line-height: 1.6; color: #cccccc; }
               .feature-list { list-style: none; padding: 0; margin: 20px 0; }
               .feature-list li { padding: 10px 0; padding-left: 30px; position: relative; color: #cccccc; }
-              .feature-list li:before { content: '✓'; position: absolute; left: 0; color: #d4af37; font-weight: bold; }
+              .feature-list li:before { content: '✓'; position: absolute; left: 0; color: #FFD700; font-weight: bold; }
               .cta { text-align: center; margin: 30px 0; }
-              .button { display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #f4e5b5 100%); color: #0a0a0a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; }
+              .button { display: inline-block; background: linear-gradient(135deg, #FFD700 0%, #f4e5b5 100%); color: #0a0a0a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; }
               .footer { text-align: center; padding: 20px; color: #666666; font-size: 12px; border-top: 1px solid rgba(212, 175, 55, 0.1); }
             </style>
           </head>
@@ -226,7 +226,7 @@ class EmailService {
               .content p { line-height: 1.6; color: #cccccc; }
               .warning-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 20px; margin: 20px 0; }
               .cta { text-align: center; margin: 30px 0; }
-              .button { display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #f4e5b5 100%); color: #0a0a0a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; }
+              .button { display: inline-block; background: linear-gradient(135deg, #FFD700 0%, #f4e5b5 100%); color: #0a0a0a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; }
               .footer { text-align: center; padding: 20px; color: #666666; font-size: 12px; border-top: 1px solid rgba(212, 175, 55, 0.1); }
             </style>
           </head>
@@ -287,13 +287,13 @@ class EmailService {
               .header { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 40px; text-align: center; }
               .header h1 { margin: 0; color: #ffffff; font-size: 32px; }
               .content { padding: 40px; }
-              .content h2 { color: #d4af37; margin-top: 0; }
+              .content h2 { color: #FFD700; margin-top: 0; }
               .content p { line-height: 1.6; color: #cccccc; }
               .post-preview { background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; padding: 20px; margin: 20px 0; }
               .platforms { display: flex; gap: 10px; flex-wrap: wrap; margin: 15px 0; }
               .platform-badge { background: rgba(100, 102, 241, 0.2); color: #a5b4fc; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
               .cta { text-align: center; margin: 30px 0; }
-              .button { display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #f4e5b5 100%); color: #0a0a0a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; }
+              .button { display: inline-block; background: linear-gradient(135deg, #FFD700 0%, #f4e5b5 100%); color: #0a0a0a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; }
               .footer { text-align: center; padding: 20px; color: #666666; font-size: 12px; border-top: 1px solid rgba(212, 175, 55, 0.1); }
             </style>
           </head>
@@ -310,7 +310,7 @@ class EmailService {
                   <p style="margin: 0; color: #ffffff; font-size: 18px; font-weight: 600;">${postTitle}</p>
 
                   <p style="margin: 20px 0 10px 0; color: #888888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Scheduled For</p>
-                  <p style="margin: 0; color: #d4af37; font-size: 16px;">${scheduledFor.toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}</p>
+                  <p style="margin: 0; color: #FFD700; font-size: 16px;">${scheduledFor.toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}</p>
 
                   <p style="margin: 20px 0 10px 0; color: #888888; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Platforms</p>
                   <div class="platforms">
@@ -360,18 +360,18 @@ class EmailService {
             <style>
               body { font-family: 'Inter', -apple-system, sans-serif; background: #0a0a0a; color: #ffffff; margin: 0; padding: 40px 20px; }
               .container { max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 16px; overflow: hidden; }
-              .header { background: linear-gradient(135deg, #d4af37 0%, #f4e5b5 100%); padding: 40px; text-align: center; }
+              .header { background: linear-gradient(135deg, #FFD700 0%, #f4e5b5 100%); padding: 40px; text-align: center; }
               .header h1 { margin: 0; color: #0a0a0a; font-size: 32px; }
               .content { padding: 40px; }
-              .content h2 { color: #d4af37; margin-top: 0; }
+              .content h2 { color: #FFD700; margin-top: 0; }
               .content p { line-height: 1.6; color: #cccccc; }
               .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 30px 0; }
               .stat-card { background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; padding: 20px; text-align: center; }
-              .stat-value { font-size: 32px; font-weight: bold; color: #d4af37; margin: 10px 0; }
+              .stat-value { font-size: 32px; font-weight: bold; color: #FFD700; margin: 10px 0; }
               .stat-label { font-size: 12px; color: #888888; text-transform: uppercase; letter-spacing: 1px; }
               .growth-badge { display: inline-block; background: ${growthColor}20; color: ${growthColor}; padding: 8px 16px; border-radius: 6px; font-weight: 600; margin: 20px 0; }
               .cta { text-align: center; margin: 30px 0; }
-              .button { display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #f4e5b5 100%); color: #0a0a0a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; }
+              .button { display: inline-block; background: linear-gradient(135deg, #FFD700 0%, #f4e5b5 100%); color: #0a0a0a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; }
               .footer { text-align: center; padding: 20px; color: #666666; font-size: 12px; border-top: 1px solid rgba(212, 175, 55, 0.1); }
             </style>
           </head>
@@ -439,7 +439,7 @@ class EmailService {
               .header { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); padding: 40px; text-align: center; }
               .header h1 { margin: 0; color: #ffffff; font-size: 32px; }
               .content { padding: 40px; }
-              .content h2 { color: #d4af37; margin-top: 0; }
+              .content h2 { color: #FFD700; margin-top: 0; }
               .content p { line-height: 1.6; color: #cccccc; }
               .purchase-details { background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 8px; padding: 20px; margin: 20px 0; }
               .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(212, 175, 55, 0.1); }
@@ -447,7 +447,7 @@ class EmailService {
               .detail-label { color: #888888; }
               .detail-value { color: #ffffff; font-weight: 600; }
               .cta { text-align: center; margin: 30px 0; }
-              .button { display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #f4e5b5 100%); color: #0a0a0a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; }
+              .button { display: inline-block; background: linear-gradient(135deg, #FFD700 0%, #f4e5b5 100%); color: #0a0a0a; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: bold; }
               .footer { text-align: center; padding: 20px; color: #666666; font-size: 12px; border-top: 1px solid rgba(212, 175, 55, 0.1); }
             </style>
           </head>

@@ -64,7 +64,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ timeRang
         }
       },
       tooltip: {
-        backgroundColor: '#0A0A0A',
+        backgroundColor: '#0D0D0D',
         titleColor: '#FFD700',
         bodyColor: '#FFF7CC',
         borderColor: '#7A5A00',
@@ -114,7 +114,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ timeRang
       {
         data: [65, 20, 15],
         backgroundColor: ['#FFD700', '#E6C200', '#7A5A00'],
-        borderColor: '#0A0A0A',
+        borderColor: '#0D0D0D',
         borderWidth: 2
       }
     ]
