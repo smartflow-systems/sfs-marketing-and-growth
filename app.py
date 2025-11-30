@@ -52,23 +52,23 @@ from stripe_utils import create_checkout_session
 # Helper functions
 def get_current_user():
     """For demo purposes, create/return a default user and tenant"""
+    from models import User, Tenant, Membership
     user_id = session.get('user_id')
     if not user_id:
         # Create demo user if none exists
-        from models import User, Tenant, Membership
         u = User.query.filter_by(email="demo@smartflowsystems.com").first()
         if not u:
-            u = User(id=str(uuid.uuid4()), email="demo@smartflowsystems.com", name="Demo User")
+            u = User(id=str(uuid.uuid4()), email="demo@smartflowsystems.com", name="Demo User")  # type: ignore
             db.session.add(u)
             db.session.commit()
         
         t = Tenant.query.filter_by(owner_user_id=u.id).first()
         if not t:
-            t = Tenant(id=str(uuid.uuid4()), name="Demo Workspace", owner_user_id=u.id, plan="starter")
+            t = Tenant(id=str(uuid.uuid4()), name="Demo Workspace", owner_user_id=u.id, plan="starter")  # type: ignore
             db.session.add(t)
             db.session.commit()
             
-            m = Membership(tenant_id=t.id, user_id=u.id, role="owner",
+            m = Membership(tenant_id=t.id, user_id=u.id, role="owner",  # type: ignore
                           invited_at=datetime.utcnow(), activated_at=datetime.utcnow())
             db.session.add(m)
             db.session.commit()
@@ -77,10 +77,12 @@ def get_current_user():
         session['tenant_id'] = t.id
         return u, t
     else:
-        from models import User, Tenant
         u = User.query.get(user_id)
         t = Tenant.query.get(session.get('tenant_id'))
-        return u, t
+        if u and t:
+            return u, t
+        # Fallback to demo user if session data is invalid
+        return get_current_user() if user_id else (None, None)
 
 def seat_limit_for_plan(plan: str) -> int:
     return {"starter": 2, "flowkit": 5, "launchpack": 15}.get(plan, 2)
@@ -91,7 +93,7 @@ def tenant_active_seats(tenant_id: str) -> int:
 
 def log_action(tenant_id, actor_user_id, action, target_type, target_id, metadata=None):
     from models import AuditLog
-    rec = AuditLog(tenant_id=tenant_id, actor_user_id=actor_user_id, action=action,
+    rec = AuditLog(tenant_id=tenant_id, actor_user_id=actor_user_id, action=action,  # type: ignore
                    target_type=target_type, target_id=target_id,
                    event_data=json.dumps(metadata or {}))
     db.session.add(rec)
@@ -104,7 +106,7 @@ def get_or_create_notif_settings(tenant_id: str):
     from models import NotificationSettings
     s = NotificationSettings.query.get(tenant_id)
     if not s:
-        s = NotificationSettings(tenant_id=tenant_id)
+        s = NotificationSettings(tenant_id=tenant_id)  # type: ignore
         db.session.add(s)
         db.session.commit()
     return s
@@ -146,6 +148,9 @@ def checkout():
     
     try:
         user, tenant = get_current_user()
+        if not user or not tenant:
+            flash("Error: Could not initialize user session", "error")
+            return redirect(url_for('pricing'))
         
         # Determine the domain for success/cancel URLs
         domain = request.host_url.rstrip('/')
@@ -167,7 +172,7 @@ def checkout():
             }
         )
         
-        return redirect(checkout_session.url, code=303)
+        return redirect(checkout_session.url or url_for('pricing'), code=303)  # type: ignore
         
     except Exception as e:
         logging.error(f"Checkout error: {str(e)}")
@@ -180,23 +185,24 @@ def success():
     if session_id:
         try:
             checkout_session = stripe.checkout.Session.retrieve(session_id)
-            plan = checkout_session.metadata.get('plan', 'starter')
+            plan = checkout_session.metadata.get('plan', 'starter') if checkout_session.metadata else 'starter'
             
             # Update tenant plan
             user, tenant = get_current_user()
-            tenant.plan = plan
-            if checkout_session.customer:
-                tenant.stripe_customer_id = checkout_session.customer
-            if checkout_session.subscription:
-                tenant.stripe_subscription_id = checkout_session.subscription
-            
-            db.session.commit()
-            
-            # Log the upgrade
-            log_action(tenant.id, user.id, "plan_upgrade", "tenant", tenant.id, 
-                      {"new_plan": plan, "session_id": session_id})
-            
-            flash(f"Successfully upgraded to {PLAN_DETAILS[plan]['name']}!", "success")
+            if user and tenant:
+                tenant.plan = plan
+                if checkout_session.customer:
+                    tenant.stripe_customer_id = checkout_session.customer
+                if checkout_session.subscription:
+                    tenant.stripe_subscription_id = checkout_session.subscription
+                
+                db.session.commit()
+                
+                # Log the upgrade
+                log_action(tenant.id, user.id, "plan_upgrade", "tenant", tenant.id, 
+                          {"new_plan": plan, "session_id": session_id})
+                
+                flash(f"Successfully upgraded to {PLAN_DETAILS[plan]['name']}!", "success")
             
         except Exception as e:
             logging.error(f"Success page error: {str(e)}")
@@ -216,7 +222,7 @@ def stripe_webhook():
     except ValueError:
         logging.error("Invalid payload")
         return "Invalid payload", 400
-    except stripe.error.SignatureVerificationError:
+    except Exception as e:  # stripe.error.SignatureVerificationError
         logging.error("Invalid signature")
         return "Invalid signature", 400
 
@@ -242,6 +248,9 @@ def stripe_webhook():
 def feature_access(name):
     """Demo endpoint to check feature access"""
     user, tenant = get_current_user()
+    if not user or not tenant:
+        return jsonify({"error": "Could not initialize user session"}), 500
+    
     has_access = has_feature_access(tenant.plan, name)
     
     return jsonify({
@@ -255,6 +264,9 @@ def feature_access(name):
 def admin():
     """Admin interface for user management"""
     user, tenant = get_current_user()
+    if not user or not tenant:
+        flash("Session error", "error")
+        return redirect(url_for('home'))
     
     # Check if user has admin rights
     from models import Membership
@@ -279,6 +291,9 @@ def admin():
 def invite_user():
     """Invite a new user to the tenant"""
     user, tenant = get_current_user()
+    if not user or not tenant:
+        flash("Session error", "error")
+        return redirect(url_for('home'))
     
     # Check permissions
     from models import Membership
@@ -304,7 +319,7 @@ def invite_user():
     token = signer.dumps({'email': email, 'tenant_id': tenant.id, 'role': role})
     expires_at = datetime.utcnow() + timedelta(days=7)
     
-    invitation = Invitation(
+    invitation = Invitation(  # type: ignore
         id=str(uuid.uuid4()),
         tenant_id=tenant.id,
         email=email,
@@ -364,11 +379,11 @@ def accept_invitation(token):
         # Create or find user
         user = User.query.filter_by(email=email).first()
         if not user:
-            user = User(id=str(uuid.uuid4()), email=email, name=email.split('@')[0])
+            user = User(id=str(uuid.uuid4()), email=email, name=email.split('@')[0])  # type: ignore
             db.session.add(user)
         
         # Create membership
-        membership = Membership(
+        membership = Membership(  # type: ignore
             tenant_id=tenant_id,
             user_id=user.id,
             role=role,
@@ -387,7 +402,8 @@ def accept_invitation(token):
         session['tenant_id'] = tenant_id
         
         tenant = Tenant.query.get(tenant_id)
-        flash(f"Welcome to {tenant.name}!", "success")
+        if tenant:
+            flash(f"Welcome to {tenant.name}!", "success")
         
         log_action(tenant_id, user.id, "invitation_accepted", "membership", f"{tenant_id}:{user.id}")
         
@@ -404,6 +420,9 @@ def accept_invitation(token):
 def suspend_user(user_id):
     """Suspend a user"""
     user, tenant = get_current_user()
+    if not user or not tenant:
+        flash("Session error", "error")
+        return redirect(url_for('home'))
     
     # Check permissions
     from models import Membership, User
@@ -426,6 +445,9 @@ def suspend_user(user_id):
 def reactivate_user(user_id):
     """Reactivate a suspended user"""
     user, tenant = get_current_user()
+    if not user or not tenant:
+        flash("Session error", "error")
+        return redirect(url_for('home'))
     
     # Check permissions
     from models import Membership, User
@@ -461,7 +483,7 @@ def create_booking(tenant_id):
         return ("Invalid start_at format", 400)
 
     from models import Booking
-    b = Booking(
+    b = Booking(  # type: ignore
         id=str(uuid.uuid4())[:12],
         tenant_id=tenant_id,
         customer_name=name,
@@ -498,6 +520,9 @@ def list_bookings(tenant_id):
 def notification_settings():
     """Configure notification settings for the tenant"""
     user, tenant = get_current_user()
+    if not user or not tenant:
+        flash("Session error", "error")
+        return redirect(url_for('home'))
     
     if request.method == "POST":
         data = request.get_json() if request.is_json else request.form
@@ -508,7 +533,7 @@ def notification_settings():
         from models import NotificationSettings
         settings = NotificationSettings.query.get(tenant.id)
         if not settings:
-            settings = NotificationSettings(tenant_id=tenant.id)
+            settings = NotificationSettings(tenant_id=tenant.id)  # type: ignore
             db.session.add(settings)
         
         settings.email_enabled = email_enabled
@@ -576,7 +601,7 @@ def _send_booking_reminders():
                             body = f"Reminder: {b.customer_name}, you have an appointment at {b.start_at}."
                             try:
                                 send_email_smtp(b.customer_email, "Appointment reminder", body)
-                                db.session.add(ReminderLog(tenant_id=tid, booking_id=b.id, channel="email", kind="before"))
+                                db.session.add(ReminderLog(tenant_id=tid, booking_id=b.id, channel="email", kind="before"))  # type: ignore
                                 db.session.commit()
                                 print(f"[reminder] email sent for {b.id}")
                             except Exception as e:
@@ -591,7 +616,7 @@ def _send_booking_reminders():
                                 from onboarding import send_twilio_message
                                 ok = send_twilio_message(b.customer_phone, msg)
                                 if ok:
-                                    db.session.add(ReminderLog(tenant_id=tid, booking_id=b.id, channel="sms", kind="before"))
+                                    db.session.add(ReminderLog(tenant_id=tid, booking_id=b.id, channel="sms", kind="before"))  # type: ignore
                                     db.session.commit()
                                     print(f"[reminder] sms sent for {b.id}")
                             except Exception as e:
