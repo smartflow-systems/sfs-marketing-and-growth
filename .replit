@@ -2,7 +2,7 @@ modules = ["python-3.11"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["openssl", "postgresql", "gh"]
+packages = ["openssl", "postgresql", "gh", "psmisc"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -30,12 +30,8 @@ args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 waitForPort = 5000
 
 [agent]
-integrations = ["twilio_send_message==1.0.0", "flask_stripe==1.0.0"]
+integrations = ["twilio_send_message:1.0.0", "flask_stripe:1.0.0"]
 
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 43675
-externalPort = 3000
