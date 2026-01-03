@@ -9,13 +9,12 @@ alembic==1.12.1
 psycopg2-binary==2.9.9
 
 # Authentication & Security
-python-jose[cryptography]>=3.4.0
 python-jose[cryptography]==3.4.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.18
 
 # Payments
-stripe==13.2.0
+stripe==15.4.0
 
 # Email & Marketing
 convertkit==0.4
@@ -51,7 +50,6 @@ fastapi-cors==0.0.6
 # Testing
 pytest==7.4.3
 pytest-asyncio==0.21.1
-httpx==0.28.1
 
 # Development
 black==24.3.0
