@@ -3,6 +3,14 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
+// Security: Prevent using default JWT secret in production
+if (process.env.NODE_ENV === 'production' && JWT_SECRET === 'your-secret-key-change-in-production') {
+  throw new Error(
+    'CRITICAL SECURITY ERROR: JWT_SECRET environment variable must be set in production. ' +
+    'Generate a secure random secret with: openssl rand -base64 64'
+  );
+}
+
 export interface AuthRequest extends Request {
   userId?: number;
   user?: {
