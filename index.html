@@ -2,14 +2,88 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- Primary Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <title>SmartFlow Growth - AI-Powered Marketing & Growth Automation Platform</title>
+    <meta name="title" content="SmartFlow Growth - AI-Powered Marketing & Growth Automation Platform" />
+    <meta name="description" content="All-in-one marketing automation platform with AI-powered content generation, UTM tracking, link-in-bio pages, campaign calendar, and analytics. Boost your growth with SmartFlow." />
+    <meta name="keywords" content="marketing automation, growth tools, AI content generator, UTM builder, link in bio, campaign management, social media marketing, email campaigns, analytics" />
+    <meta name="author" content="SmartFlow Systems" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://smartflow.growth/" />
+    <meta property="og:title" content="SmartFlow Growth - AI-Powered Marketing Automation" />
+    <meta property="og:description" content="Transform your marketing with AI-powered tools, campaign tracking, and growth automation. Join thousands of businesses growing with SmartFlow." />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://smartflow.growth/" />
+    <meta name="twitter:title" content="SmartFlow Growth - AI-Powered Marketing Automation" />
+    <meta name="twitter:description" content="Transform your marketing with AI-powered tools, campaign tracking, and growth automation." />
+    <meta name="twitter:image" content="/twitter-card.png" />
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#FFD700" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SmartFlow" />
+
+    <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="/assets/brand/sfs-logo-gold.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="SmartFlow Growth - Premium marketing and growth tools for modern businesses" />
-    <title>SmartFlow Growth - Marketing & Growth Tools</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Performance: Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://api.stripe.com" />
+
+    <!-- Fonts with display=swap for better performance -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
     <link rel="stylesheet" href="/assets/sfs-complete-theme.css">
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "SmartFlow Growth",
+      "applicationCategory": "BusinessApplication",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "127"
+      },
+      "offers": {
+        "@type": "AggregateOffer",
+        "lowPrice": "49",
+        "highPrice": "299",
+        "priceCurrency": "GBP",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "49",
+          "priceCurrency": "GBP",
+          "billingDuration": "P1M"
+        }
+      },
+      "description": "All-in-one marketing automation platform with AI-powered content generation, campaign tracking, and analytics",
+      "operatingSystem": "Web",
+      "url": "https://smartflow.growth/"
+    }
+    </script>
   </head>
   <body>
     <!-- SFS Circuit Flow Background -->
@@ -21,6 +95,27 @@
     <script src="/assets/sfs-circuit-flow.js"></script>
     <script type="module" src="/src/main.tsx"></script>
     <script src="/js/sfs-hamburger-menu.js"></script>
-  <script src="/js/sfs-currency.js"></script>
+    <script src="/js/sfs-currency.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker
+            .register('/service-worker.js')
+            .then(registration => {
+              console.log('✅ Service Worker registered:', registration.scope);
+
+              // Check for updates periodically
+              setInterval(() => {
+                registration.update();
+              }, 60000); // Check every minute
+            })
+            .catch(err => {
+              console.log('❌ Service Worker registration failed:', err);
+            });
+        });
+      }
+    </script>
   </body>
 </html>

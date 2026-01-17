@@ -11,7 +11,9 @@
     "agent": "node scripts/sfs-agent-cli.js",
     "sync": "bash scripts/auto-sync.sh",
     "sync:watch": "node scripts/sync-chatgpt-claude.js watch",
-    "build": "echo 'build complete' && exit 0",
+    "build": "vite build",
+    "build:analyze": "ANALYZE=true vite build",
+    "preview": "vite preview",
     "test": "echo 'no tests configured' && exit 0",
     "migrate": "prisma migrate dev --name init",
     "studio": "prisma studio",
@@ -19,7 +21,9 @@
     "pull": "git pull --no-edit",
     "push": "git push",
     "auto-commit": "git add . && git commit -m 'chore: auto-commit [Auto-Sync]' || true",
-    "sync-all": "npm run auto-commit && npm run sync"
+    "sync-all": "npm run auto-commit && npm run sync",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -28,6 +32,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "axios": "^1.13.1",
     "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
@@ -38,7 +43,9 @@
     "stripe": "^16.12.0"
   },
   "devDependencies": {
-    "prisma": "^5.22.0"
+    "@types/compression": "^1.7.5",
+    "prisma": "^5.22.0",
+    "rollup-plugin-visualizer": "^5.12.0"
   },
   "engines": {
     "node": ">=18"
