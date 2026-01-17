@@ -43,6 +43,14 @@ export default function CampaignCalendar() {
   const [view, setView] = useState<View>('month');
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [showEventDialog, setShowEventDialog] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newEventData, setNewEventData] = useState({
+    title: '',
+    description: '',
+    startDate: '',
+    endDate: '',
+    campaignId: null as number | null,
+  });
 
   useEffect(() => {
     loadCampaigns();
@@ -200,9 +208,57 @@ export default function CampaignCalendar() {
 
   // Handle slot selection (for creating new events)
   const handleSelectSlot = useCallback((slotInfo: { start: Date; end: Date }) => {
-    console.log('Selected slot:', slotInfo);
-    // TODO: Open create event dialog
-  }, []);
+    const startDateStr = slotInfo.start.toISOString().slice(0, 16);
+    const endDateStr = slotInfo.end.toISOString().slice(0, 16);
+
+    setNewEventData({
+      title: '',
+      description: '',
+      startDate: startDateStr,
+      endDate: endDateStr,
+      campaignId: selectedCampaign,
+    });
+    setShowCreateDialog(true);
+  }, [selectedCampaign]);
+
+  // Handle create event form submission
+  const handleCreateEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!newEventData.title.trim()) {
+      alert('Please enter a title for the event');
+      return;
+    }
+
+    try {
+      await api.createCalendarEvent({
+        title: newEventData.title,
+        description: newEventData.description,
+        startDate: new Date(newEventData.startDate).toISOString(),
+        endDate: new Date(newEventData.endDate).toISOString(),
+        campaignId: newEventData.campaignId,
+      });
+
+      setShowCreateDialog(false);
+      setNewEventData({
+        title: '',
+        description: '',
+        startDate: '',
+        endDate: '',
+        campaignId: null,
+      });
+
+      // Refresh events
+      if (selectedCampaign) {
+        loadCalendarEvents(selectedCampaign);
+      } else {
+        loadAllEvents();
+      }
+    } catch (error) {
+      console.error('Failed to create event:', error);
+      alert('Failed to create event. Please try again.');
+    }
+  };
 
   if (loading && events.length === 0) {
     return (
@@ -224,6 +280,9 @@ export default function CampaignCalendar() {
             </h1>
             <p className="text-gray-400">
               Visualize and manage all your scheduled content and events
+            </p>
+            <p className="text-sm text-gray-500 mt-1">
+              Click on any date to create a new event
             </p>
           </div>
 
@@ -284,6 +343,124 @@ export default function CampaignCalendar() {
             className="sfs-calendar"
           />
         </div>
+
+        {/* Create Event Dialog */}
+        {showCreateDialog && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onClick={() => setShowCreateDialog(false)}>
+            <div className="glass-card p-8 max-w-2xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <CalendarIcon className="w-8 h-8 text-purple-400" />
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">Create Calendar Event</h2>
+                    <p className="text-sm text-gray-400">Add a new milestone or deadline</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowCreateDialog(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateEvent} className="space-y-6">
+                {/* Title */}
+                <div>
+                  <label className="block text-sm text-gray-400 uppercase tracking-wide mb-2">
+                    Event Title *
+                  </label>
+                  <input
+                    type="text"
+                    value={newEventData.title}
+                    onChange={(e) => setNewEventData({ ...newEventData, title: e.target.value })}
+                    placeholder="e.g., Product Launch, Campaign Deadline"
+                    className="w-full glass-card px-4 py-3 rounded-lg text-white border border-gold/20 focus:border-gold outline-none"
+                    required
+                  />
+                </div>
+
+                {/* Description */}
+                <div>
+                  <label className="block text-sm text-gray-400 uppercase tracking-wide mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={newEventData.description}
+                    onChange={(e) => setNewEventData({ ...newEventData, description: e.target.value })}
+                    placeholder="Add event details..."
+                    rows={3}
+                    className="w-full glass-card px-4 py-3 rounded-lg text-white border border-gold/20 focus:border-gold outline-none resize-none"
+                  />
+                </div>
+
+                {/* Start Date */}
+                <div>
+                  <label className="block text-sm text-gray-400 uppercase tracking-wide mb-2">
+                    Start Date & Time *
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={newEventData.startDate}
+                    onChange={(e) => setNewEventData({ ...newEventData, startDate: e.target.value })}
+                    className="w-full glass-card px-4 py-3 rounded-lg text-white border border-gold/20 focus:border-gold outline-none"
+                    required
+                  />
+                </div>
+
+                {/* End Date */}
+                <div>
+                  <label className="block text-sm text-gray-400 uppercase tracking-wide mb-2">
+                    End Date & Time *
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={newEventData.endDate}
+                    onChange={(e) => setNewEventData({ ...newEventData, endDate: e.target.value })}
+                    className="w-full glass-card px-4 py-3 rounded-lg text-white border border-gold/20 focus:border-gold outline-none"
+                    required
+                  />
+                </div>
+
+                {/* Campaign */}
+                <div>
+                  <label className="block text-sm text-gray-400 uppercase tracking-wide mb-2">
+                    Campaign (Optional)
+                  </label>
+                  <select
+                    value={newEventData.campaignId || ''}
+                    onChange={(e) => setNewEventData({ ...newEventData, campaignId: e.target.value ? parseInt(e.target.value) : null })}
+                    className="w-full glass-card px-4 py-3 rounded-lg text-white border border-gold/20 focus:border-gold outline-none"
+                  >
+                    <option value="">No Campaign</option>
+                    {campaigns.map((campaign) => (
+                      <option key={campaign.id} value={campaign.id}>
+                        {campaign.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-3 mt-8">
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateDialog(false)}
+                    className="flex-1 glass-card px-6 py-3 rounded-lg text-gray-300 hover:bg-white/10 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 glass-card px-6 py-3 rounded-lg text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 transition-all"
+                  >
+                    Create Event
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* Event Details Dialog */}
         {showEventDialog && selectedEvent && (
