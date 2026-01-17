@@ -1,0 +1,203 @@
+Skip to content
+
+Files
+Commands
+__pycache__
+.config
+.git
+.github
+.sfs-backups
+~
+assets
+attached_assets
+db
+docs
+fix
+git
+index.lock
+public
+scripts
+server
+sfs-kit
+sfs-marketing-and-growth
+SFSAPDemoCRM
+SFSDataQueryEngine
+smartflow-umbrella
+SmartFlowSite
+SocialScaleBoosterAIbot
+src
+static
+templates
+tests
+.dockerignore
+.env.example
+.gitignore
+.main.bak
+.sfs-backup-app.20251107-131437.py
+.sfs-backup-app.20251107-131448.py
+.sfs-backup-app.20251107-131518.py
+.sfs-backup-app.20251107-132120.py
+.sfs-backup-main.20251107-131437.py
+.sfs-backup-main.20251107-131448.py
+.sfs-backup-main.20251107-131518.py
+.sfs-backup-main.20251107-132120.py
+ab_testing.py
+adopt_sfs.sh
+AGENTS.md
+ai_service.py
+API_COMPLETE.md
+app.py
+app.py.bak
+apply_patches.sh
+BACKEND_IMPLEMENTATION.md
+bootstrap-enhanced.sh
+cache.py
+CLAUDE_AI_PROJECT_FULL.md
+CLAUDE_AI_PROJECT_QUICK.md
+CLAUDE_AI_SETUP_INSTRUCTIONS.md
+config.py
+database.py
+design_guidelines.md
+docker-compose.yml
+Dockerfile
+drizzle.config.ts
+EMAIL_CALENDAR_FEATURES.md
+email_campaigns.py
+FEATURES_SUMMARY.md
+FEATURES.md
+FIX_REPLIT_ERROR.md
+google_calendar.py
+index.html
+influencer_manager.py
+LICENSE
+main.py
+models.py
+onboarding.py
+openapi.yaml
+postcss.config.js
+pytest.ini
+README.md
+REPLIT_SETUP.md
+replit.md
+requirements.txt.20251108-211106.bak
+requirements.txt.20251108-211206.bak
+requirements.txt.20251108-211919.bak
+SECURITY.md
+security.py
+server.js
+SFS_AGENT_INTEGRATION_GUIDE.md
+sfs-badges.sh
+sfs-circuit-flow.js
+sfs-complete-theme.css
+SFS-DESIGN-SYSTEM.md
+sfs-fix.sh
+sfs-globals.css
+sfs-merge.sh
+sfs-template.html
+sfs-theme-config.json
+SFS-THEME-PACKAGE-README.md
+site.config.json
+social_media_scheduler.py
+storage.py
+stripe_utils.py
+tailwind.config.js
+tailwind.preset.js
+tsconfig.json
+tsconfig.node.json
+UPGRADE_SUMMARY.md
+vite.config.js
+vite.config.ts
+vitest.config.ts
+websocket_manager.py
+Packager files
+.pythonlibs
+.upm
+node_modules
+package-lock.json
+package.json
+pyproject.toml
+requirements.txt
+uv.lock
+Config files
+gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app
+21m • 21 minutes ago
+[2026-01-17 19:53:08 +0000] [8944] [INFO] Booting worker with pid: 89
+44
+DEBUG:tzlocal:No explicit setting existed. Use localtime
+INFO:apscheduler.scheduler:Adding job tentatively -- it will be prope
+rly scheduled when the scheduler starts
+INFO:apscheduler.scheduler:Added job "_send_booking_reminders" to job
+ store "default"
+INFO:apscheduler.scheduler:Scheduler started
+DEBUG:apscheduler.scheduler:Looking for jobs to run
+DEBUG:apscheduler.scheduler:Next wakeup is due at 2026-01-17 19:58:09
+.970378+00:00 (in 299.998867 seconds)
+[scheduler] Started booking reminders scheduler
+INFO:app:DB ready ✅ using postgresql://neondb_owner:npg_Ph7zrQlpdV5K
+@ep-square-frog-adn8e246.c-2.us-east-1.aws.neon.tech/neondb?sslmode=r
+equire
+DEBUG:apscheduler.scheduler:Looking for jobs to run
+INFO:apscheduler.executors.default:Running job "_send_booking_reminde
+rs (trigger: interval[0:05:00], next run at: 2026-01-17 19:58:09 UTC)
+" (scheduled at 2026-01-17 19:58:09.970378+00:00)
+DEBUG:apscheduler.scheduler:Next wakeup is due at 2026-01-17 20:03:09
+.970378+00:00 (in 299.996644 seconds)
+INFO:apscheduler.executors.default:Job "_send_booking_reminders (trig
+ger: interval[0:05:00], next run at: 2026-01-17 20:03:09 UTC)" execut
+ed successfully
+ 
+Secrets
+DATABASE_URL
+••••••••
+PGDATABASE
+••••••••
+PGHOST
+••••••••
+PGPORT
+••••••••
+PGUSER
+••••••••
+PGPASSWORD
+••••••••
+SFS_SYNC_URL
+••••••••
+CORS_ORIGIN
+••••••••
+CLIENT_URL
+••••••••
+JWT_SECRET
+••••••••
+OPENAI_API_KEY
+••••••••
+SESSION_SECRET
+••••••••
+SFS_PAT
+••••••••
+Configurations
+Configurations are similar to secrets, but should only be used for non-sensitive information. They're useful for having a variable that's different between your published app and when testing on Replit.
+~/workspace$ git pull
+remote: Enumerating objects: 45, done.
+remote: Counting objects: 100% (9/9), done.
+remote: Total 45 (delta 9), reused 9 (delta 9), pack-reused 36 (from 
+1)
+Unpacking objects: 100% (45/45), 104.23 KiB | 1.86 MiB/s, done.
+From https://github.com/smartflow-systems/sfs-marketing-and-growth
+ * [new branch]      claude/implement-feature-mkii6vw698e3itn5-WHvjp 
+-> origin/claude/implement-feature-mkii6vw698e3itn5-WHvjp
+ * [new branch]      claude/optimize-app-performance-uxAas -> origin/
+claude/optimize-app-performance-uxAas
+fatal: Unable to write index.
+~/workspace$ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Unsupported state: your index is currently locked. This can happen if multiple git processes are running operations at the same time.Please resolve the issue by ending those git operations. If you are sure you do not have git operations running, you can delete your .git/index.lock file.
