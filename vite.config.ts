@@ -5,15 +5,7 @@ import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
   plugins: [
-    react({
-      // Optimize React rendering
-      babel: {
-        plugins: [
-          // Remove React DevTools in production
-          ['transform-react-remove-prop-types', { removeImport: true }],
-        ],
-      },
-    }),
+    react(),
     // Bundle analyzer (only in analyze mode)
     process.env.ANALYZE &&
       visualizer({
@@ -28,12 +20,9 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  // Performance hints
-  build: {
-    reportCompressedSize: true,
-  },
   // OPTIMIZED: Build configuration for better performance
   build: {
+    reportCompressedSize: true,
     // Use terser for better minification
     minify: 'terser',
     terserOptions: {
