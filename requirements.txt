@@ -14,21 +14,21 @@ passlib[bcrypt]==1.7.4
 python-multipart==0.0.18
 
 # Payments
-stripe==15.4.0
+stripe==11.1.0
 
 # Email & Marketing
 convertkit==0.4
 mailchimp-marketing==3.0.80
 
 # Data Visualization & Analytics
-pandas==2.3.3
+pandas==2.1.4
 plotly==5.18.0
-numpy==2.3.4
+numpy==1.26.2
 
 # AI/ML Support
-openai==2.7.1
-langchain==1.0.5
-chromadb==1.3.4
+openai==1.6.1
+langchain==0.1.0
+chromadb==0.4.22
 
 # Booking & Calendar
 icalendar==5.0.11
