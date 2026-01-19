@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { useEffect, lazy, Suspense } from 'react'
 import Layout from './components/Layout'
+import ErrorBoundary from './components/ErrorBoundary'
 import { initCircuitBackground } from './effects/circuit-background'
 
 // OPTIMIZED: Lazy load pages for better initial load performance
@@ -46,7 +47,7 @@ function App() {
   }, [])
 
   return (
-    <>
+    <ErrorBoundary>
       <canvas id="circuit-canvas"></canvas>
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
@@ -74,7 +75,7 @@ function App() {
           </Route>
         </Routes>
       </Suspense>
-    </>
+    </ErrorBoundary>
   )
 }
 

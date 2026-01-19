@@ -1,9 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Bundle analyzer (only in analyze mode)
+    process.env.ANALYZE &&
+      visualizer({
+        open: true,
+        filename: 'dist/stats.html',
+        gzipSize: true,
+        brotliSize: true,
+      }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -11,6 +22,7 @@ export default defineConfig({
   },
   // OPTIMIZED: Build configuration for better performance
   build: {
+    reportCompressedSize: true,
     // Use terser for better minification
     minify: 'terser',
     terserOptions: {
@@ -54,6 +66,20 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom'],
     exclude: ['html2canvas'], // Don't pre-bundle heavy deps that are lazy loaded
+    esbuildOptions: {
+      // Optimize esbuild for production
+      target: 'es2020',
+      supported: {
+        'top-level-await': true,
+      },
+    },
+  },
+  // Preload optimization
+  experimental: {
+    renderBuiltUrl(filename: string) {
+      // Optimize asset loading with CDN if needed
+      return { relative: true };
+    },
   },
   server: {
     host: '0.0.0.0', // Required for Replit
