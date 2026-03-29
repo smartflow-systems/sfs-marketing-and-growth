@@ -95,7 +95,7 @@ SmartFlow Systems is a comprehensive SaaS ecosystem providing business automatio
   - Multi-tenant booking management
   - AI marketing automation
   - RBAC (Owner, Admin, Staff, Analyst)
-  - Email marketing (ConvertKit, Mailchimp)
+  - Email marketing (planned only — ConvertKit and Mailchimp not implemented)
   - Analytics (Pandas, Plotly, NumPy)
   - Stripe payments + Stripe Connect
 - Local: `/home/garet/SFS/sfs-marketing-and-growth`
