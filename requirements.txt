@@ -1,7 +1,7 @@
 # Core Framework
 fastapi==0.121.1
 uvicorn[standard]==0.24.0
-python-dotenv==1.0.0
+python-dotenv==1.2.1
 
 # Database
 sqlalchemy==2.0.23
