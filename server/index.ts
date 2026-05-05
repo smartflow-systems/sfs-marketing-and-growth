@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth';
 import campaignsRoutes from './routes/campaigns';
@@ -16,21 +18,38 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Security headers
+app.use(helmet());
+
 // Webhooks need raw body - must be before json middleware
 app.use('/api/webhooks', webhooksRoutes);
 
-// Middleware
-// Security: Configure CORS with explicit allowed origins
+// Rate limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
+});
+app.use('/api/', apiLimiter);
+app.use('/api/auth', authLimiter);
+
+// CORS with explicit allowed origins
 const allowedOrigins = process.env.CLIENT_URL
   ? process.env.CLIENT_URL.split(',').map(url => url.trim())
   : ['http://localhost:5173', 'http://localhost:3000'];
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, Postman)
     if (!origin) return callback(null, true);
-
-    if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
+    if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -42,8 +61,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/health', (_req, res) => {
+  res.json({ ok: true });
 });
 
 // API Routes
@@ -56,19 +75,16 @@ app.use('/api/templates', templatesRoutes);
 app.use('/api/calendar', calendarRoutes);
 
 // Error handling
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Unhandled error:', err.message || 'Unknown error');
   res.status(err.status || 500).json({
-    error: err.message || 'Internal server error',
+    error: 'Internal server error',
   });
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Marketing & Growth API server running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
-
-  // Start scheduled tasks (post reminders, weekly digests)
+  console.log(`Marketing & Growth API running on port ${PORT}`);
   scheduledTasksService.start();
 });
 
