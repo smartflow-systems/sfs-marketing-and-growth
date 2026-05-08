@@ -12,6 +12,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from config import Config, FEATURES_BY_PLAN, PLAN_DETAILS
 from database import db
+from server.middleware.sfs_auth import require_org, CurrentUser
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -468,19 +469,23 @@ def reactivate_user(user_id):
 
 # Booking API endpoints
 @app.route("/api/tenants/<tenant_id>/bookings", methods=["POST"])
-def create_booking(tenant_id):
-    """Create a booking (demo)"""
+@require_org
+def create_booking(tenant_id, sfs_user: CurrentUser):
+    """Create a booking — requires SFS JWT; tenant_id must match token orgId."""
+    if sfs_user.orgId != tenant_id:
+        return jsonify({"error": "Forbidden: tenant mismatch"}), 403
+
     data = request.get_json() or {}
     name = data.get("customer_name", "Walk-in")
     email = data.get("customer_email")
     phone = data.get("customer_phone")
     start_at_iso = data.get("start_at")  # ISO 8601, e.g. "2025-08-17T15:30:00Z"
     if not start_at_iso:
-        return ("start_at (ISO) required", 400)
+        return jsonify({"error": "start_at (ISO) required"}), 400
     try:
         start_at = datetime.fromisoformat(start_at_iso.replace("Z", "+00:00")).replace(tzinfo=None)
     except Exception:
-        return ("Invalid start_at format", 400)
+        return jsonify({"error": "Invalid start_at format"}), 400
 
     from models import Booking
     b = Booking(  # type: ignore
@@ -494,11 +499,15 @@ def create_booking(tenant_id):
     )
     db.session.add(b)
     db.session.commit()
-    return {"ok": True, "booking_id": b.id}
+    return jsonify({"ok": True, "booking_id": b.id})
 
 @app.route("/api/tenants/<tenant_id>/bookings", methods=["GET"])
-def list_bookings(tenant_id):
-    """List upcoming bookings for tenant (next 72h)"""
+@require_org
+def list_bookings(tenant_id, sfs_user: CurrentUser):
+    """List upcoming bookings for tenant — requires SFS JWT; tenant_id must match token orgId."""
+    if sfs_user.orgId != tenant_id:
+        return jsonify({"error": "Forbidden: tenant mismatch"}), 403
+
     from models import Booking
     now = datetime.utcnow()
     rows = (Booking.query
@@ -514,7 +523,7 @@ def list_bookings(tenant_id):
             "email": b.customer_email, "phone": b.customer_phone,
             "start_at": b.start_at.isoformat()+"Z", "status": b.status
         })
-    return out
+    return jsonify(out)
 
 @app.route("/settings/notifications", methods=["GET", "POST"])
 def notification_settings():

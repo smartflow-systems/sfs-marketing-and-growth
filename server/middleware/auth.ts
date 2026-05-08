@@ -1,23 +1,38 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+// SFS_JWT_SECRET is the ecosystem-wide standard. Fall back to JWT_SECRET during transition.
+const SFS_JWT_SECRET = process.env.SFS_JWT_SECRET || process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-// Security: Prevent using default JWT secret in production
-if (process.env.NODE_ENV === 'production' && JWT_SECRET === 'your-secret-key-change-in-production') {
-  throw new Error(
-    'CRITICAL SECURITY ERROR: JWT_SECRET environment variable must be set in production. ' +
-    'Generate a secure random secret with: openssl rand -base64 64'
+if (!process.env.SFS_JWT_SECRET && process.env.JWT_SECRET) {
+  console.warn(
+    '[sfs-auth] WARNING: SFS_JWT_SECRET not set — falling back to JWT_SECRET. ' +
+    'Set SFS_JWT_SECRET to align with the SFS hub.'
   );
 }
 
+// Security: Prevent using default JWT secret in production
+if (process.env.NODE_ENV === 'production' && SFS_JWT_SECRET === 'your-secret-key-change-in-production') {
+  throw new Error(
+    'CRITICAL SECURITY ERROR: SFS_JWT_SECRET environment variable must be set in production. ' +
+    'Use the same value as SFS-Backend. Generate with: openssl rand -base64 64'
+  );
+}
+
+// SFS token payload shape — matches SFS-Backend JWT payload
+export interface SfsTokenPayload {
+  userId: string;
+  email: string;
+  orgId: string;
+  role: string;
+  plan: string;
+  // Legacy field kept for backwards compat with tokens minted before SFS wiring
+  subscriptionTier?: string;
+}
+
 export interface AuthRequest extends Request {
-  userId?: number;
-  user?: {
-    id: number;
-    email: string;
-    subscriptionTier: string;
-  };
+  userId?: string;
+  user?: SfsTokenPayload;
 }
 
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -28,12 +43,14 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; email: string; subscriptionTier: string };
-    req.userId = decoded.userId;
+    const decoded = jwt.verify(token, SFS_JWT_SECRET) as SfsTokenPayload;
+    req.userId = String(decoded.userId);
     req.user = {
-      id: decoded.userId,
+      userId: String(decoded.userId),
       email: decoded.email,
-      subscriptionTier: decoded.subscriptionTier,
+      orgId: decoded.orgId || '',
+      role: decoded.role || '',
+      plan: decoded.plan || decoded.subscriptionTier || '',
     };
 
     next();
@@ -47,12 +64,14 @@ export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction
     const token = req.headers.authorization?.replace('Bearer ', '');
 
     if (token) {
-      const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; email: string; subscriptionTier: string };
-      req.userId = decoded.userId;
+      const decoded = jwt.verify(token, SFS_JWT_SECRET) as SfsTokenPayload;
+      req.userId = String(decoded.userId);
       req.user = {
-        id: decoded.userId,
+        userId: String(decoded.userId),
         email: decoded.email,
-        subscriptionTier: decoded.subscriptionTier,
+        orgId: decoded.orgId || '',
+        role: decoded.role || '',
+        plan: decoded.plan || decoded.subscriptionTier || '',
       };
     }
 
@@ -63,17 +82,28 @@ export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction
   }
 };
 
+export const requireOrg = (req: AuthRequest, res: Response, next: NextFunction) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  if (!req.user.orgId) {
+    return res.status(403).json({ error: 'No org context in token' });
+  }
+  next();
+};
+
 export const requireSubscription = (tiers: string[]) => {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    if (!tiers.includes(req.user.subscriptionTier)) {
+    const userPlan = req.user.plan || req.user.subscriptionTier || '';
+    if (!tiers.includes(userPlan)) {
       return res.status(403).json({
         error: 'Subscription upgrade required',
         requiredTiers: tiers,
-        currentTier: req.user.subscriptionTier
+        currentTier: userPlan,
       });
     }
 
@@ -81,10 +111,16 @@ export const requireSubscription = (tiers: string[]) => {
   };
 };
 
-export const generateToken = (userId: number, email: string, subscriptionTier: string): string => {
+export const generateToken = (
+  userId: string | number,
+  email: string,
+  plan: string,
+  orgId = '',
+  role = 'member',
+): string => {
   return jwt.sign(
-    { userId, email, subscriptionTier },
-    JWT_SECRET,
-    { expiresIn: '7d' }
+    { userId: String(userId), email, orgId, role, plan },
+    SFS_JWT_SECRET,
+    { expiresIn: '7d' },
   );
 };
