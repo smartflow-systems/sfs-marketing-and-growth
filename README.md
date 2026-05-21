@@ -1,398 +1,146 @@
-# 🚀 SmartFlow Systems - Marketing & Growth Platform
+# sfs-marketing-and-growth
 
-A **powerhouse** SaaS platform combining multi-tenant booking management, AI-powered marketing tools, and comprehensive growth features.
+> Premium marketing and growth tools for modern businesses — AI content generation, A/B testing, and multi-channel automation.
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://python.org)
-[![React](https://img.shields.io/badge/react-18.2-61dafb.svg)](https://reactjs.org)
-[![TypeScript](https://img.shields.io/badge/typescript-5.2-blue.svg)](https://typescriptlang.org)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit-FFD700?style=for-the-badge&logo=replit&logoColor=black)](https://sfs-marketing-and-growth.replit.app)
+[![SmartFlow Systems](https://img.shields.io/badge/SmartFlow-Systems-0a0a0a?style=for-the-badge)](https://github.com/smartflow-systems)
 
 ---
 
-## 📋 Table of Contents
+## What It Does
 
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Quick Start](#-quick-start)
-- [Configuration](#-configuration)
-- [Project Structure](#-project-structure)
-- [API Documentation](#-api-documentation)
-- [Deployment](#-deployment)
+sfs-marketing-and-growth is a marketing automation platform for salons, barbershops, and service businesses. The live site presents the product and captures interested leads. A full-featured Flask application (`app.py`) — providing multi-tenant workspace management, Stripe subscription billing, AI social media post generation, email campaigns, social platform integration, A/B content experiments, and booking APIs — is available alongside the Node.js server and is the intended production backend for the complete SaaS product.
 
 ---
 
-## ✨ Features
+## Tech Stack
 
-### 🎯 Core Business Features
-
-#### Multi-Tenant Booking System
-- **Role-Based Access Control**: Owner, Admin, Staff, Analyst roles
-- **Invitation System**: Token-based user invitations with expiration
-- **Audit Logging**: Track all actions across tenants
-- **Automated Reminders**: Email & SMS notifications via APScheduler
-- **Seat Management**: Plan-based user limits
-
-#### Subscription & Billing
-- **Stripe Integration**: Full subscription lifecycle management
-- **Three Pricing Tiers**:
-  - **Smart Starter** (£49/mo): 2 seats, basic features
-  - **Flow Kit** (£149/mo): 5 seats, advanced features
-  - **Salon Launch Pack** (£299/mo): 15 seats, premium features
-- **Flexible Billing**: Monthly or one-time payments
-- **Webhook Handling**: Real-time subscription updates
-
-### 🤖 AI-Powered Marketing Tools
-
-#### 1. AI Post Generator ✅
-- **Real AI Integration**: OpenAI GPT-4 & Anthropic Claude support
-- **Multi-Platform**: Instagram, Twitter, LinkedIn, Facebook, TikTok
-- **Smart Optimization**: Platform-specific character limits and best practices
-- **Niche-Specific**: 10+ industry templates
-- **Tone Control**: Professional, Casual, Funny, Inspirational, Educational
-- **Multiple Variations**: Generate 3+ unique posts per request
-- **Auto Hashtags**: Industry-relevant hashtag suggestions
-
-**Location**: `/tools/ai-post-generator`
-
-#### 2. Email Campaign Builder ✅
-- **AI-Powered Content**: Generate compelling email copy with AI
-- **Professional Templates**: 4 pre-built, responsive HTML templates
-  - Welcome Email
-  - Monthly Newsletter
-  - Promotional Offer
-  - Abandoned Cart
-- **Campaign Management**: Create, schedule, and track campaigns
-- **Performance Metrics**: Open rates, click rates, engagement tracking
-- **Audience Segmentation**: Target specific customer groups
-- **Variable Replacement**: Dynamic content with {{placeholders}}
-
-**Location**: `/tools/email-campaigns`
-
-#### 3. UTM Builder & QR Generator ✅
-- **Campaign Tracking**: Build UTM-tagged URLs
-- **QR Code Generation**: Instant QR codes with custom colors
-- **Quick Presets**: Instagram, Facebook, Email, Google Ads
-- **Download Options**: PNG QR codes
-- **Real-time Preview**: See links as you build them
-
-**Location**: `/tools/utm-builder`
-
-#### 4. Link-in-Bio Page Builder ✅
-- **Professional Landing Pages**: Create Linktree-style pages
-- **OG Image Fetching**: Automatic preview images
-- **Glass Design**: Premium aesthetic
-- **Multi-Link Management**: Add unlimited links
-
-**Location**: `/tools/link-in-bio`
-
-#### 5. Campaign Calendar ✅
-- **CSV Import**: Bulk import campaign data
-- **Visual Planning**: Calendar view of campaigns
-- **Campaign Organization**: Plan content strategy
-
-**Location**: `/tools/campaign-calendar`
-
-#### 6. OG Image Generator ✅
-- **Social Share Images**: Create Open Graph images
-- **Brand Presets**: Pre-configured templates
-- **html2canvas Integration**: Export high-quality PNGs
-
-**Location**: `/tools/og-image-generator`
+| Layer | Technology |
+|---|---|
+| Language | JavaScript (Node.js runtime server) / Python 3 (full Flask application) |
+| Runtime | Node.js 18+ (default); Python 3.10+ (Flask app) |
+| Framework | Express.js (Node.js server); Flask (Python application) |
+| Frontend | Vanilla HTML, CSS (SFS theme), JavaScript — static files from `/public`; Jinja2 templates (Flask app) |
+| Database / Storage | JSON flat-files for lead capture (`data/leads.json`); PostgreSQL or SQLite via SQLAlchemy (Flask app) |
+| Key packages | express, dotenv (Node.js); Flask, SQLAlchemy, Stripe, Twilio, itsdangerous, OpenAI/Anthropic (Flask app) |
 
 ---
 
-## 🛠 Tech Stack
+## How to Run Locally
 
-### Frontend
-- **React 18.2** - UI library
-- **TypeScript 5.2** - Type safety
-- **Vite 7.1** - Lightning-fast build tool
-- **React Router 6.20** - Client-side routing
-- **Zustand 4.4** - State management
-- **Lucide React** - Icon library
+**Node.js server (default):**
 
-### Backend
-- **Flask 3.1** - Python web framework
-- **SQLAlchemy 2.0** - ORM
-- **PostgreSQL** - Primary database (SQLite fallback)
-- **APScheduler 3.10** - Background jobs
-- **Gunicorn 23.0** - Production WSGI server
-
-### AI & Integrations
-- **OpenAI GPT-4** - AI content generation
-- **Anthropic Claude Sonnet 4.5** - Advanced AI
-- **Stripe 12.4** - Payment processing
-- **Twilio 9.7** - SMS notifications
-- **Google Calendar API** - Calendar integration
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.11+
-- Node.js 18+
-- PostgreSQL (or SQLite for dev)
-
-### 1. Clone Repository
 ```bash
+# 1. Clone the repo
 git clone https://github.com/smartflow-systems/sfs-marketing-and-growth.git
 cd sfs-marketing-and-growth
-```
 
-### 2. Environment Setup
-
-Copy the example environment file:
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your credentials (see Configuration section below)
-
-### 3. Install Dependencies
-
-**Backend**:
-```bash
-pip install -e .
-```
-
-**Frontend**:
-```bash
+# 2. Install Node.js dependencies
 npm install
+
+# 3. Start the Node.js server
+npm start
 ```
 
-### 4. Initialize Database
-```bash
-python -c "from app import app, db; app.app_context().push(); db.create_all()"
-```
+The app will be available at `http://localhost:5000`.
 
-### 5. Run Development Servers
-
-**Terminal 1 - Backend**:
-```bash
-python main.py
-# Runs on http://localhost:5000
-```
-
-**Terminal 2 - Frontend**:
-```bash
-npm run dev
-# Runs on http://localhost:3000
-```
-
-### 6. Access the App
-Open [http://localhost:3000](http://localhost:3000)
-
----
-
-## ⚙️ Configuration
-
-### Essential Environment Variables
+**Flask application (full-featured):**
 
 ```bash
-# Database
-DATABASE_URL=postgresql://user:pass@localhost/smartflow
-# Or use SQLite for development:
-# DATABASE_URL=sqlite:///smartflow.db
+# Install Python dependencies
+pip install -r requirements.txt
 
-# Flask Session Secret
-SESSION_SECRET=your-secret-key-change-in-production
+# Copy and configure environment variables
+cp .env.example .env
 
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_PUBLISHABLE_KEY=pk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# AI APIs (choose one or both)
-ANTHROPIC_API_KEY=sk-ant-...
-OPENAI_API_KEY=sk-proj-...
-AI_PROVIDER=anthropic  # or "openai"
-
-# SMTP (for emails)
-SMTP_HOST=smtp.gmail.com
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
+# Run the Flask app
+python app.py
 ```
 
-See `.env.example` for complete configuration options.
+The Flask app will be available at `http://localhost:3001`.
 
 ---
 
-## 📁 Project Structure
+## Environment Variables
 
-```
-sfs-marketing-and-growth/
-├── src/                          # React Frontend
-│   ├── pages/
-│   │   ├── Landing.tsx          # Homepage
-│   │   ├── Pricing.tsx          # Pricing page
-│   │   ├── Dashboard.tsx        # User dashboard
-│   │   └── tools/               # Growth tools
-│   │       ├── AIPostGenerator.tsx
-│   │       ├── EmailCampaignBuilder.tsx
-│   │       ├── UTMBuilder.tsx
-│   │       ├── LinkInBio.tsx
-│   │       ├── CampaignCalendar.tsx
-│   │       └── OGImageGenerator.tsx
-│   ├── components/
-│   │   ├── Layout.tsx
-│   │   └── GlassCard.tsx
-│   └── App.tsx
-│
-├── app.py                        # Main Flask application
-├── models.py                     # SQLAlchemy models
-├── config.py                     # Configuration
-├── ai_service.py                 # AI integration module
-├── email_campaigns.py            # Email campaign management
-├── onboarding.py                 # Email/SMS utilities
-├── stripe_utils.py               # Stripe helpers
-│
-├── pyproject.toml                # Python dependencies
-├── package.json                  # Node dependencies
-├── vite.config.ts                # Vite configuration
-├── .env.example                  # Environment template
-└── README.md                     # This file
-```
+The following variables are documented in `.env.example` for the full Flask application:
+
+| Variable | Required | Description | Example |
+|---|---|---|---|
+| `DATABASE_URL` | Yes | PostgreSQL connection string | `postgresql://user:pass@host/db` |
+| `SESSION_SECRET` | Yes | Flask session signing secret | `random-secret-key` |
+| `STRIPE_SECRET_KEY` | Yes | Stripe secret key for subscription billing | `sk_test_abc123` |
+| `STRIPE_PUBLISHABLE_KEY` | Yes | Stripe publishable key | `pk_test_abc123` |
+| `STRIPE_WEBHOOK_SECRET` | Yes | Stripe webhook signing secret | `whsec_xyz789` |
+| `STRIPE_PRICE_STARTER_MONTHLY` | Yes | Stripe price ID for Starter monthly plan | `price_abc123` |
+| `STRIPE_PRICE_FLOWKIT_MONTHLY` | Yes | Stripe price ID for Flow Kit monthly plan | `price_def456` |
+| `STRIPE_PRICE_LAUNCHPACK_MONTHLY` | Yes | Stripe price ID for Salon Launch Pack | `price_ghi789` |
+| `OPENAI_API_KEY` | No | OpenAI key for AI content generation | `sk-proj-abc123` |
+| `ANTHROPIC_API_KEY` | No | Anthropic key (alternative AI provider) | `sk-ant-abc123` |
+| `RESEND_API_KEY` | No | Resend API key for email sending | `re_abc123` |
+| `PORT` | No | Port for the Node.js server | `5000` |
 
 ---
 
-## 📡 API Documentation
+## API Endpoints
 
-### AI Endpoints
+The live `server.js` runtime exposes the following endpoints:
 
-#### Generate Social Posts
-```http
-POST /api/ai/generate-posts
-Content-Type: application/json
+| Method | Route | Auth required | Description |
+|---|---|---|---|
+| `GET` | `/health` | No | Health check with site name and version |
+| `GET` | `/api/health` | No | Health check (API path) |
+| `POST` | `/api/leads` | No | Capture a visitor lead (firstName, lastName, email, company, phone, source) |
+| `GET` | `/api/leads` | No | List all captured leads |
+| `POST` | `/api/stripe/checkout` | No | Stripe checkout — currently a placeholder (returns a contact redirect) |
 
-{
-  "topic": "Launching our new product",
-  "niche": "Tech & SaaS",
-  "platform": "LinkedIn",
-  "tone": "Professional",
-  "num_variations": 3
-}
-```
-
-**Response**:
-```json
-{
-  "ok": true,
-  "is_ai_generated": true,
-  "posts": [
-    {
-      "caption": "I'm thrilled to announce...",
-      "hashtags": ["#SaaS", "#TechStartup", "#Innovation"],
-      "platform": "LinkedIn",
-      "variation_number": 1
-    }
-  ]
-}
-```
-
-#### Generate Email Campaign
-```http
-POST /api/ai/generate-email
-Content-Type: application/json
-
-{
-  "subject": "New Feature Launch",
-  "audience": "Active Users",
-  "goal": "Engagement",
-  "tone": "Professional"
-}
-```
-
-#### Check AI Status
-```http
-GET /api/ai/status
-```
+> The full Flask application in `app.py` exposes a comprehensive set of routes including: tenant and user management, Stripe subscription lifecycle, AI post and email generation, social platform posting and scheduling, A/B content experiments, booking APIs, and admin tools.
 
 ---
 
-## 🐳 Deployment
+## How It Connects to SmartFlow Systems
 
-### Production Build
-
-#### 1. Build Frontend
-```bash
-npm run build
-```
-
-#### 2. Configure Gunicorn
-```bash
-gunicorn -w 4 -b 0.0.0.0:5000 app:app
-```
-
-#### 3. Set Production Environment Variables
-```bash
-export FLASK_ENV=production
-export DATABASE_URL=postgresql://...
-export STRIPE_SECRET_KEY=sk_live_...
-```
+- **Main hub** — [`smartflow-systems/SmartFlowSite`](https://github.com/smartflow-systems/SmartFlowSite) links to this repo's live demo from the product cards on the homepage.
+- **Design system** — follows the SFS design system (gold `#FFD700` on dark `#0a0a0a`). See [`sfs-claude-skills`](https://github.com/smartflow-systems/sfs-claude-skills) for the full token reference.
+- **Stripe** — Full subscription management in the Flask app: three tiers (Starter, Flow Kit, Salon Launch Pack), checkout sessions, webhook lifecycle handling, and feature gating per plan.
+- **Other integrations** — Twilio for SMS; SMTP/Resend for email; OpenAI or Anthropic for AI content generation; Twitter and Instagram APIs for social posting (all in the Flask app).
 
 ---
 
-## 🎨 Design System
+## Live Demo
 
-### Color Palette
-- **Primary Gold**: `#FFD700`
-- **Dark Background**: `#0D0D0D`
-- **Dark Card**: `#1A1A1A`
-- **Muted Text**: `#B0B0B0`
-
-### Components
-- **Glass Cards**: Frosted glass effect with backdrop blur
-- **Gold Gradients**: Subtle gold-to-orange gradients
-- **Circuit Background**: Animated canvas effect
-- **Responsive Grid**: Mobile-first design
+**https://sfs-marketing-and-growth.replit.app** — Marketing and growth tools landing page with lead capture.
 
 ---
 
-## 📈 Roadmap
+## Design System
 
-### Phase 1: Foundation ✅
-- [x] Multi-tenant booking system
-- [x] Stripe integration
-- [x] Email/SMS notifications
-- [x] AI post generator
-- [x] Email campaign builder
-- [x] UTM builder & QR generator
-- [x] Link-in-bio builder
+This repo follows the SmartFlow Systems design system.
 
-### Phase 2: Advanced Features 🚧
-- [ ] Social media scheduling & automation
-- [ ] Analytics dashboard
-- [ ] SEO toolkit
-- [ ] A/B testing framework
-- [ ] Customer journey mapping
-- [ ] Influencer management
-- [ ] Google Calendar full integration
-
-### Phase 3: Scale & Polish
-- [ ] Redis caching
-- [ ] WebSocket real-time updates
-- [ ] Comprehensive testing
-- [ ] API documentation (OpenAPI/Swagger)
-- [ ] Docker containerization
-- [ ] CI/CD pipeline
+- Brand colours: Gold `#FFD700` on dark background `#0a0a0a`
+- Typography: Inter (headings), system-ui (body)
+- Full token reference and component rules: [`sfs-claude-skills/sfs-design-system/SKILL.md`](https://github.com/smartflow-systems/sfs-claude-skills/blob/main/sfs-design-system/SKILL.md)
 
 ---
 
-## 📄 License
+## Contact
 
-This project is licensed under the MIT License.
-
----
-
-## 📞 Support
-
-- **Email**: support@smartflowsystems.com
-- **Documentation**: [docs.smartflowsystems.com](https://docs.smartflowsystems.com)
+| | |
+|---|---|
+| Sales enquiries | [sales@smartflowsystems.com](mailto:sales@smartflowsystems.com) |
+| Book a demo | [calendly.com/boweazy123](https://calendly.com/boweazy123) |
 
 ---
 
-**Built with ❤️ by SmartFlow Systems**
+## Part of the SmartFlow Systems Suite
 
-Making marketing automation accessible to everyone.
-# Trigger index
+SmartFlow Systems builds automation tools for modern businesses — booking, CRM, e-commerce, AI bots, analytics, and more.
+
+| | |
+|---|---|
+| Website | [smartflowsystems.replit.app](https://smartflowsystems.replit.app) |
+| All repos | [github.com/smartflow-systems](https://github.com/smartflow-systems) |
+
+---
+
+*Built by SmartFlow Systems.*
